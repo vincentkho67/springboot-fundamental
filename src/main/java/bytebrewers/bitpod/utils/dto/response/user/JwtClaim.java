@@ -13,8 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserResponseDTO {
-    private String email;
-    
+public class JwtClaim {
+    private String userId;
     private List<String> roles;
 }

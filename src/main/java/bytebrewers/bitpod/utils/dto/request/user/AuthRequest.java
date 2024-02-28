@@ -1,6 +1,4 @@
-package bytebrewers.bitpod.utils.dto.response.user;
-
-import java.util.List;
+package bytebrewers.bitpod.utils.dto.request.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,8 +11,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserResponseDTO {
+public class AuthRequest {
     private String email;
-    
-    private List<String> roles;
+
+    private String password;
 }
