@@ -45,8 +45,8 @@ public class User extends Auditable implements UserDetails {
     )
     private List<Role> roles;
 
-    @OneToMany(mappedBy = "user")
-    private List<Portfolio> portfolios = new ArrayList<>();
+    @OneToOne(mappedBy = "user")
+    private Portfolio portfolio;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
