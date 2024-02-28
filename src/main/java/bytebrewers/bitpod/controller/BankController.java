@@ -43,7 +43,6 @@ public class BankController {
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @PostMapping
     public ResponseEntity<?> create(@RequestBody BankDTO bankDTO) {
-        log.info("BankDTO: {}", bankDTO.getName());
         Bank newBank = bankService.create(bankDTO);
         return Res.renderJson(newBank, "Bank created", HttpStatus.CREATED);
     }

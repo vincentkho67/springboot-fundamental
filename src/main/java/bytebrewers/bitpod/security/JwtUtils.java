@@ -22,11 +22,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class JwtUtils {
-    @Value("${app.bit-pods.jwt-secret")
+    @Value("${app.bit-pods.jwt-secret}")
     private String secretKey;
     
     @Value("${app.bit-pods.jwt-expiration}")
-    private Long expiretionInSecond;
+    private Long expirationInSecond;
 
     @Value("${app.bit-pods.jwt-app-name}")
     private String appName;
@@ -37,7 +37,7 @@ public class JwtUtils {
             return JWT.create()
                     .withIssuer(appName)
                     .withSubject(user.getId())
-                    .withExpiresAt(Instant.now().plusSeconds(expiretionInSecond))
+                    .withExpiresAt(Instant.now().plusSeconds(expirationInSecond))
                     .withClaim("roles", roles)
                     .sign(Algorithm.HMAC512(secretKey));
         } catch (JWTCreationException e) {

@@ -3,19 +3,15 @@ package bytebrewers.bitpod.service.impl;
 import bytebrewers.bitpod.entity.Bank;
 import bytebrewers.bitpod.repository.BankRepository;
 import bytebrewers.bitpod.service.BankService;
-import bytebrewers.bitpod.utils.dto.Res;
 import bytebrewers.bitpod.utils.dto.request.bank.BankDTO;
 import bytebrewers.bitpod.utils.helper.EntityUpdater;
 import bytebrewers.bitpod.utils.specification.GeneralSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -35,10 +31,6 @@ public class BankServiceImpl implements BankService {
 
     @Override
     public Bank create(BankDTO bankDTO) {
-        Bank test = bankDTO.toEntity();
-        log.info("BankDTO: {}", test);
-        log.info("BankDTO name: {}", test.getName());
-        log.info("BankDTO adress: {}", test.getAddress());
         return bankRepository.save(bankDTO.toEntity());
     }
 
