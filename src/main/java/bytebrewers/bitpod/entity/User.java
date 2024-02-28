@@ -32,10 +32,17 @@ public class User extends Auditable implements UserDetails {
     private String password;
     private String address;
     @JsonFormat(pattern = "yyyy-MM-dd")
+    @Column(name = "birth_date")
     private Date birthDate;
+    @Column(name = "profile_picture")
     private String profilePicture;
 
     @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "t_user_roles",
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
+    )
     private List<Role> roles;
 
     @OneToMany(mappedBy = "user")

@@ -1,5 +1,6 @@
 package bytebrewers.bitpod.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,6 +19,7 @@ public class Portfolio extends Auditable{
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
+    @Column(name = "avg_buy")
     private BigDecimal avgBuy;
     private String returns;
 
@@ -26,5 +28,6 @@ public class Portfolio extends Auditable{
 
     @ManyToOne
     @JoinColumn(name ="user_id")
+    @JsonIgnore
     private User user;
 }

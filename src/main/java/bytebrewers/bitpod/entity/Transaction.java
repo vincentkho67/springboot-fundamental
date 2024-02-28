@@ -1,6 +1,7 @@
 package bytebrewers.bitpod.entity;
 
 import bytebrewers.bitpod.utils.enums.ETransactionType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,6 +27,7 @@ public class Transaction extends Auditable{
 
     @ManyToOne
     @JoinColumn(name ="portfolio_id")
+    @JsonIgnore
     private Portfolio portfolio;
 
     @ManyToOne

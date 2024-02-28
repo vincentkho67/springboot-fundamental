@@ -1,5 +1,6 @@
 package bytebrewers.bitpod.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,5 +22,6 @@ public class Bank extends Auditable{
     private String address;
 
     @OneToMany(mappedBy = "bank")
+    @JsonIgnore
     private List<Transaction> transactions = new ArrayList<>();
 }
