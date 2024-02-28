@@ -26,8 +26,7 @@ public class Portfolio extends Auditable{
     @OneToMany(mappedBy = "portfolio")
     private List<Transaction> transactions = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name ="user_id")
-    @JsonIgnore
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 }
