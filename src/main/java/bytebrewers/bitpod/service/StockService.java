@@ -9,9 +9,9 @@ import java.util.List;
 
 public interface StockService {
     Page<Stock> getAll(Pageable pageable, StockDTO stockDTO);
-    List<StockDTO> fetch();
+    List<StockDTO> fetch(); // for getting stocks data form external API
     Stock create(StockDTO stockDTO);
-    Stock getById(Integer id);
-    Stock update(Integer id, StockDTO stockDTO);
-    void delete(Integer id);
+    Stock getById(String id);
+    Stock update(String id, StockDTO stockDTO);
+    void delete(String id);
 }

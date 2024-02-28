@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -49,4 +50,18 @@ public class StockDTO {
 
         return stockDTOList;
     }
+    public static List<StockDTO> mapFromEntityList(List<Stock> stocks) {
+        return stocks.stream()
+                .map(StockDTO::mapFromEntity)
+                .collect(Collectors.toList());
+    }
+    public static StockDTO mapFromEntity(Stock stock) {
+        StockDTO stockDTO = new StockDTO();
+        stockDTO.setName(stock.getName());
+        stockDTO.setCompany(stock.getCompany());
+        stockDTO.setPrice(stock.getPrice());
+        stockDTO.setLot(stock.getLot());
+        return stockDTO;
+    }
+
 }
