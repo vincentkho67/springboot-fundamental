@@ -24,7 +24,6 @@ public class AuthController {
     
     @PostMapping("/register")
     public ResponseEntity<?> register (@RequestBody AuthRequest authRequest){
-
         UserResponseDTO userResponse = authService.register(authRequest);
         return Res.renderJson(userResponse, "register success", HttpStatus.CREATED);
 
@@ -32,15 +31,13 @@ public class AuthController {
 
     @PostMapping("/register/admin")
     public ResponseEntity<?> registerAdmin (@RequestBody AuthRequest authRequest){
-
         UserResponseDTO userResponse = authService.registerAdmin(authRequest);
         return Res.renderJson(userResponse, "register success", HttpStatus.CREATED);
-
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest authRequest){
         String token = authService.login(authRequest.getEmail(), authRequest.getPassword());
-        return Res.renderJson(token, "register success", HttpStatus.CREATED);
+        return Res.renderJson(token, "login success", HttpStatus.ACCEPTED);
     }
 }

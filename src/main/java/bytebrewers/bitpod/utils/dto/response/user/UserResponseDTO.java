@@ -15,6 +15,5 @@ import lombok.Setter;
 @Builder
 public class UserResponseDTO {
     private String email;
-    
     private List<String> roles;
 }

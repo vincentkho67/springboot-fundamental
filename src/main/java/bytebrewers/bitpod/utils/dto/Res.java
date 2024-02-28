@@ -13,3 +13,4 @@ public class Res {
         return ResponseEntity.status(httpStatus).body(response);
     }
 }
+

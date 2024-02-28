@@ -8,14 +8,14 @@ import java.util.List;
 @Getter
 @Setter
 public class PageResponseWrapper<T> {
-    private List<T> data;
+    private List<T> content;
     private Long totalElements;
     private Integer totalPages;
     private Integer page;
     private Integer size;
 
     public PageResponseWrapper(Page<T> page) {
-        this.data = page.getContent();
+        this.content = page.getContent();
         this.totalElements = page.getTotalElements();
         this.totalPages = page.getTotalPages();
         this.page = page.getNumber();
