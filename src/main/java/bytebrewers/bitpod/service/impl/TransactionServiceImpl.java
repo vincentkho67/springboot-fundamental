@@ -56,6 +56,7 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction newTransaction = req.toEntity(stock, portfolio, bank);
         transactionRepository.save(newTransaction);
         // handle user balance
+        assert user != null;
         userBalance(user, BigDecimal.valueOf(req.getPrice() * req.getLot() * 100), req.getTransactionType());
         updatePortfolio(portfolio);
         return newTransaction;

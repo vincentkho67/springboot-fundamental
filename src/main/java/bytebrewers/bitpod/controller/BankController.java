@@ -3,6 +3,7 @@ package bytebrewers.bitpod.controller;
 import bytebrewers.bitpod.entity.Bank;
 import bytebrewers.bitpod.service.BankService;
 import bytebrewers.bitpod.utils.constant.ApiUrl;
+import bytebrewers.bitpod.utils.constant.Messages;
 import bytebrewers.bitpod.utils.dto.PageResponseWrapper;
 import bytebrewers.bitpod.utils.dto.Res;
 import bytebrewers.bitpod.utils.dto.request.bank.BankDTO;
@@ -31,32 +32,32 @@ public class BankController {
     ) {
         Page<Bank> result = bankService.getAll(pageable, bankDTO);
         PageResponseWrapper<Bank> responseWrapper = new PageResponseWrapper<>(result);
-        return Res.renderJson(responseWrapper, "Bank found", HttpStatus.OK);
+        return Res.renderJson(responseWrapper, Messages.BANK_FOUND, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> show(@PathVariable Integer id) {
         Bank bank = bankService.getById(id);
-        return Res.renderJson(bank, "Bank found", HttpStatus.OK);
+        return Res.renderJson(bank, Messages.BANK_FOUND, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @PostMapping
     public ResponseEntity<?> create(@RequestBody BankDTO bankDTO) {
         Bank newBank = bankService.create(bankDTO);
-        return Res.renderJson(newBank, "Bank created", HttpStatus.CREATED);
+        return Res.renderJson(newBank, Messages.BANK_CREATED, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody BankDTO bankDTO) {
         Bank updatedBank = bankService.update(id, bankDTO);
-        return Res.renderJson(updatedBank, "Bank updated", HttpStatus.OK);
+        return Res.renderJson(updatedBank, Messages.BANK_UPDATED, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         bankService.delete(id);
-        return Res.renderJson(null, "Bank deleted", HttpStatus.OK);
+        return Res.renderJson(null, Messages.BANK_DELETED, HttpStatus.OK);
     }
 
 }

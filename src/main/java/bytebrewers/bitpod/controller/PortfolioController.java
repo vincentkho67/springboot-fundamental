@@ -4,6 +4,7 @@ import bytebrewers.bitpod.entity.Portfolio;
 import bytebrewers.bitpod.entity.Transaction;
 import bytebrewers.bitpod.service.PortfolioService;
 import bytebrewers.bitpod.utils.constant.ApiUrl;
+import bytebrewers.bitpod.utils.constant.Messages;
 import bytebrewers.bitpod.utils.dto.PageResponseWrapper;
 import bytebrewers.bitpod.utils.dto.Res;
 import bytebrewers.bitpod.utils.dto.request.portfolio.PortfolioDTO;
@@ -32,24 +33,24 @@ public class PortfolioController {
     ) {
         Page<Portfolio> res = portfolioService.getAll(pageable, portfolioDTO);
         PageResponseWrapper<Portfolio> responseWrapper = new PageResponseWrapper<>(res);
-        return Res.renderJson(responseWrapper, "Transaction found", HttpStatus.OK);
+        return Res.renderJson(responseWrapper, Messages.PORTFOLIO_FOUND, HttpStatus.OK);
     }
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<?> show(@PathVariable String id) {
         Portfolio portfolio = portfolioService.getById(id);
-        return Res.renderJson(portfolio, "Portfolio found", HttpStatus.OK);
+        return Res.renderJson(portfolio, Messages.PORTFOLIO_FOUND, HttpStatus.OK);
     }
     @GetMapping("/current")
     public ResponseEntity<?> showByCurrentUser(@RequestHeader(name = "Authorization") String token) {
         Portfolio portfolio = portfolioService.currentUser(token);
-        return Res.renderJson(portfolio, "Portfolio found", HttpStatus.OK);
+        return Res.renderJson(portfolio, Messages.PORTFOLIO_FOUND, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @DeleteMapping
     public ResponseEntity<?> delete(@PathVariable String id) {
         portfolioService.delete(id);
-        return Res.renderJson(null, "Portfolio deleted", HttpStatus.OK);
+        return Res.renderJson(null, Messages.PORTFOLIO_DELETED, HttpStatus.OK);
     }
 }
