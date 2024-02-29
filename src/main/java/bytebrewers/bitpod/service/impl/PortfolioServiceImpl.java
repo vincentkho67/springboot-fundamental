@@ -15,6 +15,7 @@ import bytebrewers.bitpod.utils.dto.request.stock.StockDTO;
 import bytebrewers.bitpod.utils.dto.response.user.JwtClaim;
 import bytebrewers.bitpod.utils.helper.EntityUpdater;
 import bytebrewers.bitpod.utils.specification.GeneralSpecification;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -70,7 +71,10 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public Portfolio currentUser(String token) {
         User user = getUserDetails(token);
-        return getByUser(user);
+        Portfolio port = getByUser(user);
+        String returns = setReturns(port.getTransactions());
+        port.setReturns(returns);
+        return port;
     }
 
 
@@ -99,7 +103,7 @@ public class PortfolioServiceImpl implements PortfolioService {
                     .findFirst();
 
             if (matchingStock.isPresent()) {
-                BigDecimal transactionPrice = BigDecimal.valueOf(t.getPrice());
+                BigDecimal transactionPrice = BigDecimal.valueOf(t.getPrice() / 100);
                 BigDecimal stockClose = BigDecimal.valueOf(matchingStock.get().getPrice());
 
                 // calculation for percentages
