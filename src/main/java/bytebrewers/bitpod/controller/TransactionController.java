@@ -43,15 +43,18 @@ public class TransactionController {
     }
 
     @GetMapping("/history")
-    public ResponseEntity<?> transactionHistory(@RequestHeader(name = "Authorization") String token) {
-        return Res.renderJson(transactionService.getAllByUser(token), Messages.TRANSACTION_FOUND, HttpStatus.OK);
+    public ResponseEntity<?> transactionHistory(@PageableDefault(page = 0, size = 2, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+                                                @RequestHeader(name = "Authorization") String token) {
+        Page<Transaction> res = transactionService.getAllByUser(pageable, token);
+        PageResponseWrapper<Transaction> responseWrapper = new PageResponseWrapper<>(res);
+        return Res.renderJson(responseWrapper, Messages.TRANSACTION_FOUND, HttpStatus.OK);
     }
 
     @GetMapping("/history/{id}")
     public ResponseEntity<?> transactionHistoryById(@PathVariable String id, @RequestHeader(name = "Authorization") String token) {
         return Res.renderJson(transactionService.getTransactionByCurrentUser(token, id), Messages.TRANSACTION_FOUND, HttpStatus.OK);
     }
-    @PostMapping
+    @PostMapping("/buy-or-sell")
     public ResponseEntity<?> create(@RequestBody TransactionDTO transactionDTO,
                                     @RequestHeader(name = "Authorization") String token) {
         Transaction newTransaction = transactionService.create(transactionDTO, token);

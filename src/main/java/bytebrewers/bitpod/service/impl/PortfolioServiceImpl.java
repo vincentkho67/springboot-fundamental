@@ -14,6 +14,7 @@ import bytebrewers.bitpod.utils.constant.Messages;
 import bytebrewers.bitpod.utils.dto.request.portfolio.PortfolioDTO;
 import bytebrewers.bitpod.utils.dto.request.stock.StockDTO;
 import bytebrewers.bitpod.utils.dto.response.user.JwtClaim;
+import bytebrewers.bitpod.utils.enums.ETransactionType;
 import bytebrewers.bitpod.utils.helper.EntityUpdater;
 import bytebrewers.bitpod.utils.specification.GeneralSpecification;
 import jakarta.transaction.Transactional;
@@ -95,18 +96,20 @@ public class PortfolioServiceImpl implements PortfolioService {
         List<StockDTO> stocks = stockService.fetch();
         BigDecimal totalGain = BigDecimal.ZERO;
         for (Transaction t : transactions) {
-            String stockName = t.getStock().getName();
-            Optional<StockDTO> matchingStock = stocks.stream()
-                    .filter(s -> s.getName().equals(stockName))
-                    .findFirst();
+            if (t.getTransactionType() == ETransactionType.BUY) {
+                String stockName = t.getStock().getName();
+                Optional<StockDTO> matchingStock = stocks.stream()
+                        .filter(s -> s.getName().equals(stockName))
+                        .findFirst();
 
-            if (matchingStock.isPresent()) {
-                BigDecimal transactionPrice = BigDecimal.valueOf(t.getPrice() / 100);
-                BigDecimal stockClose = BigDecimal.valueOf(matchingStock.get().getPrice());
+                if (matchingStock.isPresent()) {
+                    BigDecimal transactionPrice = BigDecimal.valueOf(t.getPrice() / 100);
+                    BigDecimal stockClose = BigDecimal.valueOf(matchingStock.get().getPrice());
 
-                // calculation for percentages
-                BigDecimal percentageGain = calculatePercentGain(transactionPrice, stockClose);
-                totalGain = totalGain.add(percentageGain);
+                    // calculation for percentages
+                    BigDecimal percentageGain = calculatePercentGain(transactionPrice, stockClose);
+                    totalGain = totalGain.add(percentageGain);
+                }
             }
         }
         if (totalGain.compareTo(BigDecimal.ZERO) >= 0) {

@@ -11,6 +11,7 @@ import bytebrewers.bitpod.utils.enums.ETransactionType;
 import bytebrewers.bitpod.utils.specification.GeneralSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -20,10 +21,14 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import org.springframework.data.domain.PageImpl;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TransactionServiceImpl implements TransactionService {
     private final TransactionRepository transactionRepository;
     private final StockService stockService;
@@ -45,6 +50,7 @@ public class TransactionServiceImpl implements TransactionService {
         User user = getUserDetails(token);
         Stock stock = stockService.getById(req.getStockId());
         req.setPrice(stock.getPrice());
+        Bank bank = bankService.getById(req.getBankId());
 
         Portfolio portfolio = portfolioService.getByUser(user);
         if(portfolio == null) {
@@ -52,13 +58,16 @@ public class TransactionServiceImpl implements TransactionService {
             portfolio = portfolioService.create(portfolioDTO, user);
         }
 
-        Bank bank = bankService.getById(req.getBankId());
         Transaction newTransaction = req.toEntity(stock, portfolio, bank);
         transactionRepository.save(newTransaction);
         // handle user balance
         assert user != null;
         userBalance(user, BigDecimal.valueOf(req.getPrice() * req.getLot() * 100), req.getTransactionType());
         updatePortfolio(portfolio);
+        if (newTransaction.getTransactionType() == ETransactionType.SELL) {
+            handleSell(portfolio, req);
+        }
+        reCheckPortfolio(portfolio);
         return newTransaction;
     }
 
@@ -74,8 +83,9 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<Transaction> getAllByUser(String token) {
-        return portfolioService.currentUser(token).getTransactions();
+    public Page<Transaction> getAllByUser(Pageable pageable, String token) {
+        List<Transaction> res = portfolioService.currentUser(token).getTransactions();
+        return wrap(res, pageable);
     }
 
     @Override
@@ -101,34 +111,30 @@ public class TransactionServiceImpl implements TransactionService {
         }
         return null;
     }
-
     private void updatePortfolio(Portfolio portfolio) {
         // Retrieve all transactions associated with the portfolio
         List<Transaction> transactions = transactionRepository.findByPortfolio(portfolio);
 
         // Calculate avgBuy and returns based on the transactions
         BigDecimal totalValue = BigDecimal.ZERO;
-        BigDecimal totalQuantity = BigDecimal.valueOf(transactions.size());
+        int totalQuantity = 0;
 
         for (Transaction t : transactions) {
-            if (t.getTransactionType() == ETransactionType.BUY) {
+            if (t.getTransactionType() == ETransactionType.BUY && t.getLot() > 0) {
+                totalQuantity++;
                 // Calculate total value
                 BigDecimal transactionValue = BigDecimal.valueOf(t.getPrice());
                 totalValue = totalValue.add(transactionValue);
             }
         }
-
         // Update avgBuy
-        BigDecimal avgBuy = totalQuantity.compareTo(BigDecimal.ZERO) == 0
+        BigDecimal avgBuy = totalQuantity == 0
                 ? BigDecimal.ZERO
-                : totalValue.divide(totalQuantity, 2, RoundingMode.HALF_UP);
+                : totalValue.divide(BigDecimal.valueOf(totalQuantity), 2, RoundingMode.HALF_UP);
 
-        portfolio.setAvgBuy(avgBuy);
-
-        PortfolioDTO portfolioDTO = new PortfolioDTO(portfolio.getAvgBuy(), null);
+        PortfolioDTO portfolioDTO = new PortfolioDTO(avgBuy, null);
         portfolioService.update(portfolio.getId(), portfolioDTO, portfolio.getUser());
     }
-
     private void userBalance(User user, BigDecimal amount, String type) {
         BigDecimal initialBalance = user.getBalance();
         if (ETransactionType.BUY.name().equalsIgnoreCase(type)) {
@@ -139,5 +145,73 @@ public class TransactionServiceImpl implements TransactionService {
         } else if (ETransactionType.SELL.name().equalsIgnoreCase(type)) {
             user.setBalance(initialBalance.add(amount));
         }
+    }
+    private void handleSell(Portfolio portfolio,TransactionDTO req) {
+        List<Transaction> trans = portfolio.getTransactions();
+        String stockId = req.getStockId();
+        List<Transaction> buyTransactions = new ArrayList<>();
+
+
+        for (Transaction t : trans) {
+            if (t.getTransactionType() == ETransactionType.BUY && t.getStock().getId().equals(stockId)) {
+                buyTransactions.add(t);
+            }
+        }
+        updateBuyTransactions(buyTransactions, req.getLot());
+    }
+    private void updateBuyTransactions(List<Transaction> req, int remainingLotAmount) {
+        int toBeRemoved = remainingLotAmount;
+        log.info("YOU ARRIVED ON START OF LOOP: {}", toBeRemoved);
+
+        for (Transaction t : req) {
+            while (toBeRemoved > 0 && t.getLot() > 0) {
+                if (toBeRemoved >= t.getLot()) {
+                    toBeRemoved -= t.getLot();
+                    t.setLot(0);
+                } else {
+                    t.setLot(t.getLot() - toBeRemoved);
+                    toBeRemoved = 0;
+                    break;
+                }
+            }
+            if (toBeRemoved == 0) {
+                break;
+            }
+        }
+
+        if (toBeRemoved > 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient lot amount to sell");
+        }
+        req.forEach(transactionRepository::save);
+    }
+    private void reCheckPortfolio(Portfolio req) {
+        List<Transaction> trans = req.getTransactions();
+        List<Transaction> toBeUpdated = new ArrayList<>();
+
+        for (Transaction t : trans) {
+            if (t.getTransactionType() == ETransactionType.BUY && t.getLot() > 0) {
+                toBeUpdated.add(t);
+            }
+        }
+
+        if (toBeUpdated.isEmpty()) {
+            portfolioService.update(req.getId(), new PortfolioDTO(BigDecimal.valueOf(0), null), req.getUser());
+        }
+    }
+    private Page<Transaction> wrap(List<Transaction> transactions, Pageable pageable) {
+        int pageSize = pageable.getPageSize();
+        int currentPage = pageable.getPageNumber();
+        int startItem = currentPage * pageSize;
+
+        List<Transaction> pageList;
+
+        if (startItem < transactions.size()) {
+            int endItem = Math.min(startItem + pageSize, transactions.size());
+            pageList = transactions.subList(startItem, endItem);
+        } else {
+            pageList = Collections.emptyList();
+        }
+
+        return new PageImpl<>(pageList, pageable, transactions.size());
     }
 }

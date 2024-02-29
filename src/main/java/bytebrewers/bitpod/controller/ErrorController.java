@@ -10,7 +10,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RestControllerAdvice
 public class ErrorController {
-
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<?> handleConstraintViolationException(ConstraintViolationException e) {
         return Res.renderJson(null, e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -23,7 +22,13 @@ public class ErrorController {
 
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<?> handleNullPointerException(NullPointerException e) {
-        return Res.renderJson(null, e.getMessage(), HttpStatus.BAD_REQUEST);
+        String message = e.getMessage();
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        if (e.getMessage().contains("Portfolio.getTransactions()")) {
+            message = "No Transaction or Portfolio Found";
+            status = HttpStatus.NOT_FOUND;
+        }
+        return Res.renderJson(null, message, status);
     }
 
 }
