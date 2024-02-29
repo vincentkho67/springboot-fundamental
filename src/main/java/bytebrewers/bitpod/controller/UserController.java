@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import bytebrewers.bitpod.entity.Auditable;
+import bytebrewers.bitpod.entity.Bank;
 import bytebrewers.bitpod.entity.User;
 import bytebrewers.bitpod.service.UserService;
 import bytebrewers.bitpod.utils.dto.Res;
@@ -29,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping(ApiUrl.BASE_URL + ApiUrl.BASE_USER)
 @RequiredArgsConstructor
-public class UserController {
+public class UserController extends Auditable{
     private final UserService userService;
 
     @PutMapping(
@@ -53,6 +56,11 @@ public class UserController {
         TopUpDTO topUp = userService.topUp(topUpDTO);
         return Res.renderJson(topUp, "topup success", HttpStatus.OK);
     }
-
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable String id) {
+        User user = userService.findUserById(id);
+        return Res.renderJson(user, "User found", HttpStatus.OK);
+    }
     
 }

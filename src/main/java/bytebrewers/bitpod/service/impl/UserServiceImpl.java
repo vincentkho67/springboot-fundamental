@@ -14,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 
+import bytebrewers.bitpod.entity.Auditable;
 import bytebrewers.bitpod.entity.User;
 import bytebrewers.bitpod.repository.UserRepository;
 import bytebrewers.bitpod.service.UserService;
@@ -41,7 +42,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public User findUserById(String id) {
-        return userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not founds"));
+        return Auditable.searchById(userRepository.findById(id), "User Not Found");
     }
 
     @Override
