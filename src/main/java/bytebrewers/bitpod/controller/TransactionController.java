@@ -36,6 +36,16 @@ public class TransactionController {
         Transaction transaction = transactionService.getById(id);
         return Res.renderJson(transaction, Messages.TRANSACTION_FOUND, HttpStatus.OK);
     }
+
+    @GetMapping("/history")
+    public ResponseEntity<?> transactionHistory(@RequestHeader(name = "Authorization") String token) {
+        return Res.renderJson(transactionService.getAllByUser(token), Messages.TRANSACTION_FOUND, HttpStatus.OK);
+    }
+
+    @GetMapping("/history/{id}")
+    public ResponseEntity<?> transactionHistoryById(@PathVariable String id, @RequestHeader(name = "Authorization") String token) {
+        return Res.renderJson(transactionService.getTransactionByCurrentUser(token, id), Messages.TRANSACTION_FOUND, HttpStatus.OK);
+    }
     @PostMapping
     public ResponseEntity<?> create(@RequestBody TransactionDTO transactionDTO,
                                     @RequestHeader(name = "Authorization") String token) {

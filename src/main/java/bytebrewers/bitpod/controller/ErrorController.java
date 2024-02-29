@@ -21,4 +21,9 @@ public class ErrorController {
         return Res.renderJson(null, e.getReason(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<?> handleNullPointerException(NullPointerException e) {
+        return Res.renderJson(null, e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
 }

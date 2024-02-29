@@ -73,6 +73,20 @@ public class TransactionServiceImpl implements TransactionService {
         transactionRepository.deleteById(id);
     }
 
+    @Override
+    public List<Transaction> getAllByUser(String token) {
+        return portfolioService.currentUser(token).getTransactions();
+    }
+
+    @Override
+    public Transaction getTransactionByCurrentUser(String token, String id) {
+        User user = getUserDetails(token);
+        List<Transaction> t = portfolioService.getByUser(user).getTransactions();
+
+        return t.stream().filter(transaction -> transaction.getId().equals(id)).findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found"));
+    }
+
     private String parseJwt(String token) {
         if(token != null && token.startsWith("Bearer ")) {
             return token.substring(7);
