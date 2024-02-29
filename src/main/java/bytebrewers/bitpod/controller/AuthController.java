@@ -5,6 +5,7 @@ import bytebrewers.bitpod.utils.constant.ApiUrl;
 import bytebrewers.bitpod.utils.dto.ControllerResponse;
 import bytebrewers.bitpod.utils.dto.Res;
 import bytebrewers.bitpod.utils.dto.request.user.AuthRequest;
+import bytebrewers.bitpod.utils.dto.request.user.RegisterDTO;
 import bytebrewers.bitpod.utils.dto.response.user.UserResponseDTO;
 import lombok.RequiredArgsConstructor;
 
@@ -23,15 +24,15 @@ public class AuthController {
      private final AuthService authService;
     
     @PostMapping("/register")
-    public ResponseEntity<?> register (@RequestBody AuthRequest authRequest){
-        UserResponseDTO userResponse = authService.register(authRequest);
+    public ResponseEntity<?> register (@RequestBody RegisterDTO registerDTO){
+        UserResponseDTO userResponse = authService.register(registerDTO);
         return Res.renderJson(userResponse, "register success", HttpStatus.CREATED);
 
     }
 
     @PostMapping("/register/admin")
-    public ResponseEntity<?> registerAdmin (@RequestBody AuthRequest authRequest){
-        UserResponseDTO userResponse = authService.registerAdmin(authRequest);
+    public ResponseEntity<?> registerAdmin (@RequestBody RegisterDTO registerDTO){
+        UserResponseDTO userResponse = authService.registerAdmin(registerDTO);
         return Res.renderJson(userResponse, "register success", HttpStatus.CREATED);
     }
 
