@@ -7,9 +7,12 @@ import jakarta.persistence.MappedSuperclass;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.Optional;
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
@@ -25,4 +28,8 @@ public abstract class Auditable {
     @Column(name = "discarded_at")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date discardedAt;
+
+    public static <T> T searchById(Optional<T> entityOptional, String notFoundMessage) {
+        return entityOptional.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, notFoundMessage));
+    }
 }
