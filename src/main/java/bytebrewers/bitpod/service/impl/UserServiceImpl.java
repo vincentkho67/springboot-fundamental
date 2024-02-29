@@ -1,15 +1,18 @@
 package bytebrewers.bitpod.service.impl;
 
-import java.math.BigDecimal;
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 
 import bytebrewers.bitpod.entity.User;
 import bytebrewers.bitpod.repository.UserRepository;
@@ -23,6 +26,14 @@ import lombok.RequiredArgsConstructor;
 public class UserServiceImpl implements UserService{
     
     private final UserRepository userRepository;
+
+    private final Cloudinary cloudinary;
+
+    public Map<?, ?> upload(MultipartFile multipartFile) throws IOException{
+        Map<?, ?> result = cloudinary.uploader().upload(multipartFile.getBytes(), ObjectUtils.emptyMap());
+        return result;
+    }
+
     @Override
     public User createUser(User user) {
         return userRepository.save(user);
@@ -30,7 +41,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public User findUserById(String id) {
-        return userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        return userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not founds"));
     }
 
     @Override
@@ -42,20 +53,22 @@ public class UserServiceImpl implements UserService{
     public UserDTO updateUser(UserDTO userDTO) {
         try{
 
-            User user = userRepository.findById(userDTO.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+            Map<?,?> result = upload(userDTO.getImage());
+
+            User user = findUserById(userDTO.getId());
             user.setId(userDTO.getId());
             user.setName(userDTO.getName());
             user.setUsername(userDTO.getUsername());
             user.setAddress(userDTO.getAddress());
-            user.setBirthDate(userDTO.getBirthDate());
-            user.setProfilePicture(userDTO.getProfilePicture());
+            user.setBirthDate(user.getBirthDate());
+            user.setProfilePicture(result.get("url").toString());
 
             userRepository.save(user);
 
             return userDTO;
 
         } catch(Exception e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found", e.getCause());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "failed updated user", e.getCause());
         }
     }
 
