@@ -1,8 +1,11 @@
 package bytebrewers.bitpod.utils.specification;
 
+import bytebrewers.bitpod.entity.User;
 import org.springframework.data.jpa.domain.Specification;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 import jakarta.persistence.criteria.Predicate;
 public class GeneralSpecification<T, D> {
     public static <T, D> Specification<T> getSpecification(D searchDTO) {

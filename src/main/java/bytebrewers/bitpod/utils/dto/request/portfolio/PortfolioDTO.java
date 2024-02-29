@@ -15,9 +15,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PortfolioDTO {
-    @NotNull
     private BigDecimal avgBuy;
-    @NotNull
     private String returns;
 
     public Portfolio toEntity(User user) {

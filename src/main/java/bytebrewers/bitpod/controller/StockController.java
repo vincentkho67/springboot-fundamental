@@ -3,6 +3,7 @@ package bytebrewers.bitpod.controller;
 import bytebrewers.bitpod.entity.Stock;
 import bytebrewers.bitpod.service.StockService;
 import bytebrewers.bitpod.utils.constant.ApiUrl;
+import bytebrewers.bitpod.utils.constant.Messages;
 import bytebrewers.bitpod.utils.dto.PageResponseWrapper;
 import bytebrewers.bitpod.utils.dto.Res;
 import bytebrewers.bitpod.utils.dto.request.stock.StockDTO;
@@ -30,11 +31,11 @@ public class StockController {
     ) {
         Page<Stock> result = stockService.getAll(pageable, stockDTO);
         PageResponseWrapper<Stock> responseWrapper = new PageResponseWrapper<>(result);
-        return Res.renderJson(responseWrapper, "Stocks found", HttpStatus.OK);
+        return Res.renderJson(responseWrapper, Messages.STOCK_FOUND, HttpStatus.OK);
     }
 
     @GetMapping("/fetch")
     public ResponseEntity<?> fetch() {
-        return Res.renderJson(stockService.fetch(), "Stocks fetched and updated", HttpStatus.OK);
+        return Res.renderJson(stockService.fetch(), Messages.STOCK_UPDATED, HttpStatus.OK);
     }
 }
