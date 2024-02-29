@@ -1,5 +1,6 @@
 package bytebrewers.bitpod.service.impl;
 
+import bytebrewers.bitpod.entity.Auditable;
 import bytebrewers.bitpod.entity.Portfolio;
 import bytebrewers.bitpod.entity.User;
 import bytebrewers.bitpod.repository.PortfolioRepository;
@@ -11,9 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -32,20 +31,19 @@ public class PortfolioServiceImpl implements PortfolioService {
 
     @Override
     public Portfolio getById(String id) {
-        return portfolioRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio not found"));
+        return Auditable.searchById(portfolioRepository.findById(id), "Portfolio not found");
     }
 
     @Override
     public Portfolio update(String id, PortfolioDTO portfolioDTO, User cred) {
-        Portfolio existingPortfolio = portfolioRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio not found"));
+        Portfolio existingPortfolio =  Auditable.searchById(portfolioRepository.findById(id), "Portfolio not found");
         EntityUpdater.updateEntity(existingPortfolio, portfolioDTO.toEntity(cred));
         return portfolioRepository.save(existingPortfolio);
     }
 
     @Override
     public void delete(String id) {
+        Auditable.searchById(portfolioRepository.findById(id), "Portfolio not found");
         portfolioRepository.deleteById(id);
     }
 }
