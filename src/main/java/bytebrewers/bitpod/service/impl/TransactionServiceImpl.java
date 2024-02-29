@@ -44,6 +44,7 @@ public class TransactionServiceImpl implements TransactionService {
     public Transaction create(TransactionDTO req, String token) {
         User user = getUserDetails(token);
         Stock stock = stockService.getById(req.getStockId());
+        req.setPrice(stock.getPrice());
 
         Portfolio portfolio = portfolioService.getByUser(user);
         if(portfolio == null) {
@@ -76,7 +77,6 @@ public class TransactionServiceImpl implements TransactionService {
         }
         return null;
     }
-
     private User getUserDetails(String token) {
         String parsedToken = parseJwt(token);
         if(parsedToken != null) {
@@ -92,14 +92,13 @@ public class TransactionServiceImpl implements TransactionService {
 
         // Calculate avgBuy and returns based on the transactions
         BigDecimal totalValue = BigDecimal.ZERO;
-        BigDecimal totalQuantity = BigDecimal.ZERO;
+        BigDecimal totalQuantity = BigDecimal.valueOf(transactions.size());
 
         for (Transaction t : transactions) {
             if (t.getTransactionType() == ETransactionType.BUY) {
-                // Calculate total value and total quantity for buy transactions
-                BigDecimal transactionValue = BigDecimal.valueOf(t.getPrice() * t.getLot());
+                // Calculate total value
+                BigDecimal transactionValue = BigDecimal.valueOf(t.getPrice());
                 totalValue = totalValue.add(transactionValue);
-                totalQuantity = totalQuantity.add(BigDecimal.valueOf(t.getLot()));
             }
             // TODO: manage sell transactions
         }
@@ -111,30 +110,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         portfolio.setAvgBuy(avgBuy);
 
-        // Update returns
-        // Calculate returns based on the latest transaction and the current stock price
-        BigDecimal latestTransactionValue = BigDecimal.valueOf(newTransaction.getPrice()).multiply(BigDecimal.valueOf(newTransaction.getLot()));
-        BigDecimal currentStockValue = BigDecimal.valueOf(stock.getPrice()).multiply(BigDecimal.valueOf(newTransaction.getLot()));
-
-        if (latestTransactionValue.compareTo(currentStockValue) > 0) {
-            portfolio.setReturns(calculatePercentGain(latestTransactionValue, currentStockValue) + "%");
-        } else {
-            portfolio.setReturns(calculatePercentLoss(latestTransactionValue, currentStockValue) + "%");
-        }
-
-        PortfolioDTO portfolioDTO = new PortfolioDTO(portfolio.getAvgBuy(), portfolio.getReturns());
-
-        // Save the updated portfolio
+        PortfolioDTO portfolioDTO = new PortfolioDTO(portfolio.getAvgBuy(), null);
         portfolioService.update(portfolio.getId(), portfolioDTO, portfolio.getUser());
-    }
-
-    private BigDecimal calculatePercentGain(BigDecimal latestValue, BigDecimal currentValue) {
-        return currentValue.subtract(latestValue).divide(latestValue, 2, RoundingMode.HALF_UP)
-                .multiply(BigDecimal.valueOf(100));
-    }
-
-    private BigDecimal calculatePercentLoss(BigDecimal latestValue, BigDecimal currentValue) {
-        return latestValue.subtract(currentValue).divide(latestValue, 2, RoundingMode.HALF_UP)
-                .multiply(BigDecimal.valueOf(100));
     }
 }

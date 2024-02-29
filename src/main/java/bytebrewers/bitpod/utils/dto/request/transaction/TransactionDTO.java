@@ -23,7 +23,7 @@ public class TransactionDTO {
 
     public Transaction toEntity(Stock stock, Portfolio port, Bank bank) {
         return Transaction.builder()
-                .price(price)
+                .price(price * lot * 100)
                 .lot(lot)
                 .transactionType(ETransactionType.valueOf(transactionType))
                 .stock(stock)

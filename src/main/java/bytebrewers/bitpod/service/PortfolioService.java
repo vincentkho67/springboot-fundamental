@@ -13,4 +13,5 @@ public interface PortfolioService {
     Portfolio update(String id, PortfolioDTO portfolioDTO, User cred);
     void delete(String id);
     Portfolio getByUser(User user);
+    Portfolio currentUser(String token);
 }
