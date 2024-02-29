@@ -48,12 +48,14 @@ public class BankController {
         return Res.renderJson(newBank, Messages.BANK_CREATED, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody BankDTO bankDTO) {
         Bank updatedBank = bankService.update(id, bankDTO);
         return Res.renderJson(updatedBank, Messages.BANK_UPDATED, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         bankService.delete(id);
