@@ -1,5 +1,6 @@
 package bytebrewers.bitpod.service.impl;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +21,7 @@ import bytebrewers.bitpod.security.JwtUtils;
 import bytebrewers.bitpod.service.AuthService;
 import bytebrewers.bitpod.service.RoleService;
 import bytebrewers.bitpod.utils.dto.request.user.AuthRequest;
+import bytebrewers.bitpod.utils.dto.request.user.RegisterDTO;
 import bytebrewers.bitpod.utils.dto.response.user.UserResponseDTO;
 import bytebrewers.bitpod.utils.enums.ERole;
 import jakarta.annotation.PostConstruct;
@@ -82,12 +84,17 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public UserResponseDTO register(AuthRequest authRequest){
+    public UserResponseDTO register(RegisterDTO registerDTO){
         Role roleCustomer = roleService.getOrSave(ERole.ROLE_MEMBER);
-        String hashPassword = passwordEncoder.encode(authRequest.getPassword());
+        String hashPassword = passwordEncoder.encode(registerDTO.getPassword());
         User userCredential = User.builder()
-            .email(authRequest.getEmail())
+            .email(registerDTO.getEmail())
             .password(hashPassword)
+            .name(registerDTO.getName())
+            .username(registerDTO.getUsername())
+            .balance(BigDecimal.ZERO)
+            .address(registerDTO.getAddress())
+            .birthDate(registerDTO.getBirthDate())
             .roles(List.of(roleCustomer))
             .build();
         
@@ -99,21 +106,26 @@ public class AuthServiceImpl implements AuthService {
 
         List<String> roles = userCredential.getRoles().stream().map(role -> role.getRole().name()).toList();
         return UserResponseDTO.builder()
-            .email(userCredential.getEmail())
+            .email(registerDTO.getEmail())
             .roles(roles)
             .build();
     }
 
     @Override
-    public UserResponseDTO registerAdmin(AuthRequest authRequest) {
+    public UserResponseDTO registerAdmin(RegisterDTO registerDTO) {
         Role roleCustomer = roleService.getOrSave(ERole.ROLE_MEMBER);
         Role roleAdmin = roleService.getOrSave(ERole.ROLE_ADMIN);
 
-        String hashPassword = passwordEncoder.encode(authRequest.getPassword());
+        String hashPassword = passwordEncoder.encode(registerDTO.getPassword());
 
         User userCredential = User.builder()
-            .email(authRequest.getEmail())
+            .email(registerDTO.getEmail())
             .password(hashPassword)
+            .name(registerDTO.getName())
+            .username(registerDTO.getUsername())
+            .balance(BigDecimal.ZERO)
+            .address(registerDTO.getAddress())
+            .birthDate(registerDTO.getBirthDate())
             .roles(List.of(roleCustomer, roleAdmin))
             .build();
 
