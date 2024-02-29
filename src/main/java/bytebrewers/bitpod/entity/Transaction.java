@@ -32,5 +32,6 @@ public class Transaction extends Auditable{
 
     @ManyToOne
     @JoinColumn(name ="bank_id")
+    @JsonIgnore
     private Bank bank;
 }

@@ -46,4 +46,9 @@ public class PortfolioServiceImpl implements PortfolioService {
         Auditable.searchById(portfolioRepository.findById(id), "Portfolio not found");
         portfolioRepository.deleteById(id);
     }
+
+    @Override
+    public Portfolio getByUser(User user) {
+        return portfolioRepository.findByUser(user);
+    }
 }

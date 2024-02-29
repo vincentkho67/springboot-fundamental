@@ -36,8 +36,9 @@ public class TransactionController {
         return Res.renderJson(transaction, "Transaction found", HttpStatus.OK);
     }
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody TransactionDTO transactionDTO) {
-        Transaction newTransaction = transactionService.create(transactionDTO);
+    public ResponseEntity<?> create(@RequestBody TransactionDTO transactionDTO,
+                                    @RequestHeader(name = "Authorization") String token) {
+        Transaction newTransaction = transactionService.create(transactionDTO, token);
         return Res.renderJson(newTransaction, "Transaction created", HttpStatus.CREATED);
     }
    @DeleteMapping
