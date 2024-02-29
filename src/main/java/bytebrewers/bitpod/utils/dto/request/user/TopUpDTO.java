@@ -9,6 +9,5 @@ import lombok.Setter;
 @Setter
 public class TopUpDTO {
     private String id;
-
     private BigDecimal amount;
 }

@@ -42,24 +42,20 @@ public class PortfolioServiceImpl implements PortfolioService {
         Specification<Portfolio> specification = GeneralSpecification.getSpecification(portfolioDTO);
         return portfolioRepository.findAll(specification, pageable);
     }
-
     @Override
     public Portfolio create(PortfolioDTO portfolioDTO, User cred) {
         return portfolioRepository.save(portfolioDTO.toEntity(cred));
     }
-
     @Override
     public Portfolio getById(String id) {
         return Auditable.searchById(portfolioRepository.findById(id), "Portfolio not found");
     }
-
     @Override
     public Portfolio update(String id, PortfolioDTO portfolioDTO, User cred) {
         Portfolio existingPortfolio =  Auditable.searchById(portfolioRepository.findById(id), "Portfolio not found");
         EntityUpdater.updateEntity(existingPortfolio, portfolioDTO.toEntity(cred));
         return portfolioRepository.save(existingPortfolio);
     }
-
     @Override
     public void delete(String id) {
         Auditable.searchById(portfolioRepository.findById(id), "Portfolio not found");
@@ -79,7 +75,6 @@ public class PortfolioServiceImpl implements PortfolioService {
         port.setReturns(returns);
         return port;
     }
-
 
     private String parseJwt(String token) {
         if(token != null && token.startsWith("Bearer ")) {

@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,6 +23,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class TransactionController {
     private final TransactionService transactionService;
+
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @GetMapping
     public ResponseEntity<?> index(
             @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
@@ -31,6 +34,8 @@ public class TransactionController {
         PageResponseWrapper<Transaction> responseWrapper = new PageResponseWrapper<>(res);
         return Res.renderJson(responseWrapper, Messages.TRANSACTION_FOUND, HttpStatus.OK);
     }
+
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<?> show(@PathVariable String id) {
         Transaction transaction = transactionService.getById(id);
@@ -52,6 +57,8 @@ public class TransactionController {
         Transaction newTransaction = transactionService.create(transactionDTO, token);
         return Res.renderJson(newTransaction, Messages.TRANSACTION_CREATED, HttpStatus.CREATED);
     }
+
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
    @DeleteMapping
     public ResponseEntity<?> delete(@PathVariable String id) {
         transactionService.delete(id);
