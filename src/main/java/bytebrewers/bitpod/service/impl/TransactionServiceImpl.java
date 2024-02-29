@@ -1,15 +1,13 @@
 package bytebrewers.bitpod.service.impl;
 
-import bytebrewers.bitpod.entity.Bank;
-import bytebrewers.bitpod.entity.Portfolio;
-import bytebrewers.bitpod.entity.Stock;
-import bytebrewers.bitpod.entity.Transaction;
+import bytebrewers.bitpod.entity.*;
 import bytebrewers.bitpod.repository.TransactionRepository;
-import bytebrewers.bitpod.service.BankService;
-import bytebrewers.bitpod.service.PortfolioService;
-import bytebrewers.bitpod.service.StockService;
-import bytebrewers.bitpod.service.TransactionService;
+import bytebrewers.bitpod.security.JwtUtils;
+import bytebrewers.bitpod.service.*;
+import bytebrewers.bitpod.utils.dto.request.portfolio.PortfolioDTO;
 import bytebrewers.bitpod.utils.dto.request.transaction.TransactionDTO;
+import bytebrewers.bitpod.utils.dto.response.user.JwtClaim;
+import bytebrewers.bitpod.utils.enums.ETransactionType;
 import bytebrewers.bitpod.utils.specification.GeneralSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +18,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class TransactionServiceImpl implements TransactionService {
@@ -27,6 +29,8 @@ public class TransactionServiceImpl implements TransactionService {
     private final StockService stockService;
     private final PortfolioService portfolioService;
     private final BankService bankService;
+    private final JwtUtils jwt;
+    private final UserService userService;
 
 
     @Override
@@ -37,12 +41,22 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Transactional
     @Override
-    public Transaction create(TransactionDTO req) {
+    public Transaction create(TransactionDTO req, String token) {
+        User user = getUserDetails(token);
         Stock stock = stockService.getById(req.getStockId());
-        Portfolio portfolio = portfolioService.getById(req.getPortfolioId());
+
+        Portfolio portfolio = portfolioService.getByUser(user);
+        if(portfolio == null) {
+            PortfolioDTO portfolioDTO = new PortfolioDTO();
+            portfolio = portfolioService.create(portfolioDTO, user);
+        }
+
         Bank bank = bankService.getById(req.getBankId());
         Transaction newTransaction = req.toEntity(stock, portfolio, bank);
-        return transactionRepository.save(newTransaction);
+        transactionRepository.save(newTransaction);
+
+        updatePortfolio(portfolio, newTransaction, stock);
+        return newTransaction;
     }
 
     @Override
@@ -54,5 +68,73 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public void delete(String id) {
         transactionRepository.deleteById(id);
+    }
+
+    private String parseJwt(String token) {
+        if(token != null && token.startsWith("Bearer ")) {
+            return token.substring(7);
+        }
+        return null;
+    }
+
+    private User getUserDetails(String token) {
+        String parsedToken = parseJwt(token);
+        if(parsedToken != null) {
+            JwtClaim user = jwt.getUserInfoByToken(parsedToken);
+            return userService.loadByUserId(user.getUserId());
+        }
+        return null;
+    }
+
+    private void updatePortfolio(Portfolio portfolio, Transaction newTransaction, Stock stock) {
+        // Retrieve all transactions associated with the portfolio
+        List<Transaction> transactions = transactionRepository.findByPortfolio(portfolio);
+
+        // Calculate avgBuy and returns based on the transactions
+        BigDecimal totalValue = BigDecimal.ZERO;
+        BigDecimal totalQuantity = BigDecimal.ZERO;
+
+        for (Transaction t : transactions) {
+            if (t.getTransactionType() == ETransactionType.BUY) {
+                // Calculate total value and total quantity for buy transactions
+                BigDecimal transactionValue = BigDecimal.valueOf(t.getPrice() * t.getLot());
+                totalValue = totalValue.add(transactionValue);
+                totalQuantity = totalQuantity.add(BigDecimal.valueOf(t.getLot()));
+            }
+            // TODO: manage sell transactions
+        }
+
+        // Update avgBuy
+        BigDecimal avgBuy = totalQuantity.compareTo(BigDecimal.ZERO) == 0
+                ? BigDecimal.ZERO
+                : totalValue.divide(totalQuantity, 2, RoundingMode.HALF_UP);
+
+        portfolio.setAvgBuy(avgBuy);
+
+        // Update returns
+        // Calculate returns based on the latest transaction and the current stock price
+        BigDecimal latestTransactionValue = BigDecimal.valueOf(newTransaction.getPrice()).multiply(BigDecimal.valueOf(newTransaction.getLot()));
+        BigDecimal currentStockValue = BigDecimal.valueOf(stock.getPrice()).multiply(BigDecimal.valueOf(newTransaction.getLot()));
+
+        if (latestTransactionValue.compareTo(currentStockValue) > 0) {
+            portfolio.setReturns(calculatePercentGain(latestTransactionValue, currentStockValue) + "%");
+        } else {
+            portfolio.setReturns(calculatePercentLoss(latestTransactionValue, currentStockValue) + "%");
+        }
+
+        PortfolioDTO portfolioDTO = new PortfolioDTO(portfolio.getAvgBuy(), portfolio.getReturns());
+
+        // Save the updated portfolio
+        portfolioService.update(portfolio.getId(), portfolioDTO, portfolio.getUser());
+    }
+
+    private BigDecimal calculatePercentGain(BigDecimal latestValue, BigDecimal currentValue) {
+        return currentValue.subtract(latestValue).divide(latestValue, 2, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100));
+    }
+
+    private BigDecimal calculatePercentLoss(BigDecimal latestValue, BigDecimal currentValue) {
+        return latestValue.subtract(currentValue).divide(latestValue, 2, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100));
     }
 }
