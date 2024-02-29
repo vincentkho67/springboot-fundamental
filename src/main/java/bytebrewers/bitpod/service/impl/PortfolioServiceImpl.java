@@ -2,6 +2,7 @@ package bytebrewers.bitpod.service.impl;
 
 import bytebrewers.bitpod.entity.Auditable;
 import bytebrewers.bitpod.entity.Portfolio;
+import bytebrewers.bitpod.entity.Transaction;
 import bytebrewers.bitpod.entity.User;
 import bytebrewers.bitpod.repository.PortfolioRepository;
 import bytebrewers.bitpod.security.JwtUtils;
@@ -10,6 +11,7 @@ import bytebrewers.bitpod.service.StockService;
 import bytebrewers.bitpod.service.TransactionService;
 import bytebrewers.bitpod.service.UserService;
 import bytebrewers.bitpod.utils.dto.request.portfolio.PortfolioDTO;
+import bytebrewers.bitpod.utils.dto.request.stock.StockDTO;
 import bytebrewers.bitpod.utils.dto.response.user.JwtClaim;
 import bytebrewers.bitpod.utils.helper.EntityUpdater;
 import bytebrewers.bitpod.utils.specification.GeneralSpecification;
@@ -18,6 +20,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -80,5 +87,35 @@ public class PortfolioServiceImpl implements PortfolioService {
             return userService.loadByUserId(user.getUserId());
         }
         return null;
+    }
+
+    private String setReturns(List<Transaction> transactions) {
+        List<StockDTO> stocks = stockService.fetch();
+        BigDecimal totalGain = BigDecimal.ZERO;
+        for (Transaction t : transactions) {
+            String stockName = t.getStock().getName();
+            Optional<StockDTO> matchingStock = stocks.stream()
+                    .filter(s -> s.getName().equals(stockName))
+                    .findFirst();
+
+            if (matchingStock.isPresent()) {
+                BigDecimal transactionPrice = BigDecimal.valueOf(t.getPrice());
+                BigDecimal stockClose = BigDecimal.valueOf(matchingStock.get().getPrice());
+
+                // calculation for percentages
+                BigDecimal percentageGain = calculatePercentGain(transactionPrice, stockClose);
+                totalGain = totalGain.add(percentageGain);
+            }
+        }
+        if (totalGain.compareTo(BigDecimal.ZERO) >= 0) {
+            return "Gain " + totalGain + "%";
+        } else {
+            return "Loss " + totalGain.abs() + "%";
+        }
+    }
+
+    private BigDecimal calculatePercentGain(BigDecimal latestValue, BigDecimal currentValue) {
+        return currentValue.subtract(latestValue).divide(latestValue, 2, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100));
     }
 }
