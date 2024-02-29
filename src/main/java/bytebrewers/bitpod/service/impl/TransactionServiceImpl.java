@@ -55,8 +55,9 @@ public class TransactionServiceImpl implements TransactionService {
         Bank bank = bankService.getById(req.getBankId());
         Transaction newTransaction = req.toEntity(stock, portfolio, bank);
         transactionRepository.save(newTransaction);
-
-        updatePortfolio(portfolio, newTransaction, stock);
+        // handle user balance
+        userBalance(user, BigDecimal.valueOf(req.getPrice() * req.getLot() * 100), req.getTransactionType());
+        updatePortfolio(portfolio);
         return newTransaction;
     }
 
@@ -86,7 +87,7 @@ public class TransactionServiceImpl implements TransactionService {
         return null;
     }
 
-    private void updatePortfolio(Portfolio portfolio, Transaction newTransaction, Stock stock) {
+    private void updatePortfolio(Portfolio portfolio) {
         // Retrieve all transactions associated with the portfolio
         List<Transaction> transactions = transactionRepository.findByPortfolio(portfolio);
 
@@ -100,7 +101,6 @@ public class TransactionServiceImpl implements TransactionService {
                 BigDecimal transactionValue = BigDecimal.valueOf(t.getPrice());
                 totalValue = totalValue.add(transactionValue);
             }
-            // TODO: manage sell transactions
         }
 
         // Update avgBuy
@@ -112,5 +112,17 @@ public class TransactionServiceImpl implements TransactionService {
 
         PortfolioDTO portfolioDTO = new PortfolioDTO(portfolio.getAvgBuy(), null);
         portfolioService.update(portfolio.getId(), portfolioDTO, portfolio.getUser());
+    }
+
+    private void userBalance(User user, BigDecimal amount, String type) {
+        BigDecimal initialBalance = user.getBalance();
+        if (ETransactionType.BUY.name().equalsIgnoreCase(type)) {
+            if (initialBalance.compareTo(amount) < 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient balance");
+            }
+            user.setBalance(initialBalance.subtract(amount));
+        } else if (ETransactionType.SELL.name().equalsIgnoreCase(type)) {
+            user.setBalance(initialBalance.add(amount));
+        }
     }
 }
