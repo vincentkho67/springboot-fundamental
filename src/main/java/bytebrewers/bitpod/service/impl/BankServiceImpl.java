@@ -1,5 +1,6 @@
 package bytebrewers.bitpod.service.impl;
 
+import bytebrewers.bitpod.entity.Auditable;
 import bytebrewers.bitpod.entity.Bank;
 import bytebrewers.bitpod.repository.BankRepository;
 import bytebrewers.bitpod.service.BankService;
@@ -36,18 +37,19 @@ public class BankServiceImpl implements BankService {
 
     @Override
     public Bank getById(Integer id) {
-        return bankRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Bank not found"));
+        return Auditable.searchById(bankRepository.findById(id), "Bank not found");
     }
 
     @Override
     public Bank update(Integer id, BankDTO bankDTO) {
-        Bank existingBank = bankRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Bank not found"));
+        Bank existingBank = Auditable.searchById(bankRepository.findById(id), "Bank not found");
         EntityUpdater.updateEntity(existingBank, bankDTO.toEntity());
         return bankRepository.save(existingBank);
     }
 
     @Override
     public void delete(Integer id) {
+        Auditable.searchById(bankRepository.findById(id), "Bank not found");
         bankRepository.deleteById(id);
     }
 }

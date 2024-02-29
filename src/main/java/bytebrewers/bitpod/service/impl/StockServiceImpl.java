@@ -1,4 +1,5 @@
 package bytebrewers.bitpod.service.impl;
+import bytebrewers.bitpod.entity.Auditable;
 import bytebrewers.bitpod.entity.Stock;
 import bytebrewers.bitpod.repository.StockRepository;
 import bytebrewers.bitpod.service.StockService;
@@ -66,8 +67,7 @@ public class StockServiceImpl implements StockService {
 
     @Override
     public Stock getById(String id) {
-        return stockRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Stock not found"));
+        return Auditable.searchById(stockRepository.findById(id), "Stock not found");
     }
 
     @Override
