@@ -7,6 +7,7 @@ import bytebrewers.bitpod.utils.constant.Messages;
 import bytebrewers.bitpod.utils.dto.PageResponseWrapper;
 import bytebrewers.bitpod.utils.dto.Res;
 import bytebrewers.bitpod.utils.dto.request.stock.StockDTO;
+import bytebrewers.bitpod.utils.dto.response.stock.RecommendationDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -40,5 +41,13 @@ public class StockController {
     public ResponseEntity<?> show(@PathVariable String id) {
         Stock stock = stockService.getById(id);
         return Res.renderJson(stock, Messages.STOCK_FOUND, HttpStatus.OK);
+    }
+    @GetMapping("/recommendation")
+    public ResponseEntity<?> recommend(
+            @PageableDefault(page = 0, size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        Page<RecommendationDTO> res = stockService.recommend(pageable);
+        PageResponseWrapper<RecommendationDTO> responseWrapper = new PageResponseWrapper<>(res);
+        return Res.renderJson(responseWrapper, Messages.STOCK_FOUND, HttpStatus.OK);
     }
 }
