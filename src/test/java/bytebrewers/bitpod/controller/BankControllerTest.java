@@ -1,6 +1,7 @@
 package bytebrewers.bitpod.controller;
 
 
+import bytebrewers.bitpod.util.Helper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.MethodOrderer;
@@ -40,22 +41,9 @@ public class BankControllerTest {
 
     @Order(1)
     @Test
-    public void loginAsSuperAdmin() throws Exception {
-        Map<String, Object> req = new HashMap<>();
-        req.put("email", "superadmin@gmail.com");
-        req.put("password", "superadmin");
-        mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON_VALUE)
-                        .content(objectMapper.writeValueAsString(req))
-                ).andExpectAll(status().isAccepted())
-                .andDo(result -> {
-                    String jsonString = result.getResponse().getContentAsString();
-                    Map<String, Object> mapResponse = objectMapper.readValue(jsonString, new TypeReference<>(){});
-
-                    token = mapResponse.get("data").toString();
-                    assertNotNull(token);
-                });
+    public void testLoginAsSuperAdmin() throws Exception {
+        token = Helper.loginAsSuperAdmin(mockMvc, objectMapper);
+        assertNotNull(token);
     }
 
 
