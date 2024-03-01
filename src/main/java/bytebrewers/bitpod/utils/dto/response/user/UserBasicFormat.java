@@ -3,6 +3,7 @@ package bytebrewers.bitpod.utils.dto.response.user;
 import bytebrewers.bitpod.entity.User;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 
 @Getter
@@ -16,6 +17,7 @@ public class UserBasicFormat {
     private String address;
     private String birthDate;
     private String profilePicture;
+    private BigDecimal balance;
 
     public static UserBasicFormat fromUser(User user) {
         return UserBasicFormat.builder()

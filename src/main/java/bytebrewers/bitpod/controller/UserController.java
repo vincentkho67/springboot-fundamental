@@ -8,6 +8,7 @@ import java.util.UUID;
 import bytebrewers.bitpod.utils.constant.ApiUrl;
 import bytebrewers.bitpod.utils.constant.Messages;
 import bytebrewers.bitpod.utils.dto.PageResponseWrapper;
+import bytebrewers.bitpod.utils.dto.response.user.UserBasicFormat;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -16,12 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.midtrans.Config;
-import com.midtrans.ConfigFactory;
 import com.midtrans.Midtrans;
 import com.midtrans.httpclient.SnapApi;
 import com.midtrans.httpclient.error.MidtransError;
@@ -59,8 +55,8 @@ public class UserController{
             @PageableDefault(page = 0, size = 10, sort = "name", direction = Sort.Direction.DESC) Pageable pageable,
             @ModelAttribute UserDTO req
     ){
-        Page<User> res = userService.getAllUser(pageable, req);
-        PageResponseWrapper<User> responseWrapper = new PageResponseWrapper<>(res);
+        Page<UserBasicFormat> res = userService.getAllUser(pageable, req);
+        PageResponseWrapper<UserBasicFormat> responseWrapper = new PageResponseWrapper<>(res);
         return Res.renderJson(responseWrapper, Messages.USER_FOUND, HttpStatus.OK);
     }
     
@@ -105,11 +101,7 @@ public class UserController{
         topUpMidtransresponseDTO.setClientKey(clientKey);
         String token = SnapApi.createTransactionToken(requestBody);
         topUpMidtransresponseDTO.setToken("https://app.sandbox.midtrans.com/snap/v3/redirection/"+token);
-//        https://app.sandbox.midtrans.com/snap/v1/transactions/{token}/status
-
 
         return Res.renderJson(topUpMidtransresponseDTO, "Topup success", HttpStatus.OK);
     }
-// 4811 1111 1111 1114 CC accepted
-    
 }
