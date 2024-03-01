@@ -78,30 +78,11 @@ public class UserController{
     @PostMapping("/topup/midtrans")
     public ResponseEntity<?> topUpViaMidtrans(@RequestBody TopUpSnapDTO topUpSnapDTO) throws MidtransError{
 
-        Midtrans.clientKey = "SB-Mid-client-mmalMqC0Sqqv81WL";
-        Midtrans.serverKey = "SB-Mid-server-v6MMOtdWj5g1EG3lAQihiYAV";
-        // Get ClientKey from Midtrans Configuration class
-        String clientKey = Midtrans.getClientKey();
-
-        UUID idRand = UUID.randomUUID();
-        Map<String, Object> requestBody = new HashMap<>();
-        
-        Map<String, String> transactionDetails = new HashMap<>();
-        transactionDetails.put("order_id", idRand.toString());
-        transactionDetails.put("gross_amount", topUpSnapDTO.getGross_amount().toString());
-        
-        Map<String, String> creditCard = new HashMap<>();
-        creditCard.put("secure", "true");
-
-        requestBody.put("transaction_details", transactionDetails);
-        requestBody.put("credit_card", creditCard);
-
-        TopUpMidtransresponseDTO topUpMidtransresponseDTO = new TopUpMidtransresponseDTO();
-        topUpMidtransresponseDTO.setRequestBody(requestBody);
-        topUpMidtransresponseDTO.setClientKey(clientKey);
-        String token = SnapApi.createTransactionToken(requestBody);
-        topUpMidtransresponseDTO.setToken("https://app.sandbox.midtrans.com/snap/v3/redirection/"+token);
-
+        TopUpMidtransresponseDTO topUpMidtransresponseDTO = userService.topUpViaMidtrans(topUpSnapDTO);
         return Res.renderJson(topUpMidtransresponseDTO, "Topup success", HttpStatus.OK);
     }
+
+    // https://app.sandbox.midtrans.com/snap/v1/transactions/{token}/status
+    // 4811 1111 1111 1114 CC accepted
+    
 }

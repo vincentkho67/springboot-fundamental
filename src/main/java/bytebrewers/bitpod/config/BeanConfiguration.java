@@ -1,5 +1,8 @@
 package bytebrewers.bitpod.config;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,5 +37,10 @@ public class BeanConfiguration {
             "api_key","415953523312214",
             "api_secret","Y5JMq_FNpPplA8Fmtn-zn3sGfnw"
         ));
+    }
+
+    @Bean
+    public ExecutorService executorService(){
+        return Executors.newFixedThreadPool(5);
     }
 }
