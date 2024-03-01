@@ -28,7 +28,7 @@ import jakarta.transaction.Transactional;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ActiveProfiles("test")
 @Transactional // we can use this to ensure it doesn't really insert it on database
-class AuthControllerTest {
+public class AuthControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -47,44 +47,28 @@ class AuthControllerTest {
     @Order(2)
     @Test
     void testRegisterAdminSuccess() throws Exception {
-        Map<String, Object> req = new HashMap<>();
-        req.put("email", "admin2@gmail.com");
-        req.put("password", "admin2");
-        req.put("name", "admin2");
-        req.put("username", "admin2");
-        req.put("address", "jakarta");
-        req.put("birthDate", "2000-01-01");
-
-        ResultActions result = Helper.postWithoutHeader(mockMvc, objectMapper, "/auth/register/admin", req);
+        ResultActions result = Helper.registerAdmin(mockMvc, objectMapper);
 
         result.andDo(res -> {
             String jsonString = res.getResponse().getContentAsString();
             Map<String, Object> mapResponse = objectMapper.readValue(jsonString, new TypeReference<>(){});
 
             Map<String, Object> data = (Map<String, Object>) mapResponse.get("data");
-            assertEquals(req.get("email"), data.get("email"));
+            assertEquals("admin2@gmail.com", data.get("email"));
         });
     }
 
     @Order(3)
     @Test
     void testRegisterMemberSucces() throws Exception {
-        Map<String, Object> req = new HashMap<>();
-        req.put("email", "member@gmail.com");
-        req.put("password", "member");
-        req.put("name", "member");
-        req.put("username", "member");
-        req.put("address", "jakarta");
-        req.put("birthDate", "2000-01-01");
-
-        ResultActions result = Helper.postWithoutHeader(mockMvc, objectMapper, "/auth/register", req);
+        ResultActions result = Helper.registerMember(mockMvc, objectMapper);
 
         result.andDo(res -> {
             String jsonString = res.getResponse().getContentAsString();
             Map<String, Object> mapResponse = objectMapper.readValue(jsonString, new TypeReference<>(){});
 
             Map<String, Object> data = (Map<String, Object>) mapResponse.get("data");
-            assertEquals(req.get("email"), data.get("email"));
+            assertEquals("member@gmail.com", data.get("email"));
         });
     }
 }

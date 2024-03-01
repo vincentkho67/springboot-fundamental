@@ -47,7 +47,6 @@ public class BankControllerTest {
         assertNotNull(token);
     }
 
-
     @Order(2)
     @Test
     void createBank() throws Exception {
