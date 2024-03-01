@@ -15,6 +15,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.springframework.test.web.servlet.ResultActions;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,22 +56,18 @@ public class BankControllerTest {
         req.put("name", "Mandiri");
         req.put("address", "Jl. Jendral Sudirman No. 1");
 
-        mockMvc.perform(post("/api/banks")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                        .header("Authorization", "Bearer " + token)
-                .content(objectMapper.writeValueAsString(req))
-        ).andExpectAll(status().isCreated())
-                .andDo(result -> {
-                    String jsonString = result.getResponse().getContentAsString();
-                    Map<String, Object> mapResponse = objectMapper.readValue(jsonString, new TypeReference<>(){});
+        ResultActions result = Helper.postWithHeader(mockMvc, objectMapper, "/api/banks", token, req);
 
-                    Map<String, Object> data = (Map<String, Object>) mapResponse.get("data");
-                    assertEquals(req.get("name"), data.get("name"));
-                    assertEquals(req.get("address"), data.get("address"));
+        result.andDo(res -> {
+            String jsonString = res.getResponse().getContentAsString();
+            Map<String, Object> mapResponse = objectMapper.readValue(jsonString, new TypeReference<>(){});
 
-                    id = data.get("id").toString();
-                    address = data.get("address").toString();
-                });
+            Map<String, Object> data = (Map<String, Object>) mapResponse.get("data");
+            assertEquals(req.get("name"), data.get("name"));
+            assertEquals(req.get("address"), data.get("address"));
+
+            id = data.get("id").toString();
+            address = data.get("address").toString();
+        });
     }
 }

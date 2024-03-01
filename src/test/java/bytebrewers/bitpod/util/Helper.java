@@ -31,4 +31,21 @@ public class Helper {
 
         return token;
     }
+
+    public static ResultActions postWithHeader(MockMvc mockMvc, ObjectMapper objectMapper, String endpoint, String token, Map<String, Object> requestContent) throws Exception {
+        return mockMvc.perform(post(endpoint)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .header("Authorization", "Bearer " + token)
+                        .content(objectMapper.writeValueAsString(requestContent)))
+                .andExpect(status().isCreated());
+    }
+
+    public static ResultActions postWithoutHeader(MockMvc mockMvc, ObjectMapper objectMapper, String endpoint, Map<String, Object> requestContent) throws Exception {
+        return mockMvc.perform(post(endpoint)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .content(objectMapper.writeValueAsString(requestContent)))
+                .andExpect(status().isCreated());
+    }
 }
