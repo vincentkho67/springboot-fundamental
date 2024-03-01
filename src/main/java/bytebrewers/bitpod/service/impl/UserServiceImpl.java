@@ -1,9 +1,18 @@
 package bytebrewers.bitpod.service.impl;
 
 import java.io.IOException;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
+import bytebrewers.bitpod.security.JwtUtils;
+import bytebrewers.bitpod.utils.dto.response.user.JwtClaim;
+import bytebrewers.bitpod.utils.dto.response.user.UserBasicFormat;
+import bytebrewers.bitpod.utils.specification.GeneralSpecification;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -24,11 +33,14 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService{
     
     private final UserRepository userRepository;
 
     private final Cloudinary cloudinary;
+
+    private final JwtUtils jwt;
 
     public Map<?, ?> upload(MultipartFile multipartFile) throws IOException{
         Map<?, ?> result = cloudinary.uploader().upload(multipartFile.getBytes(), ObjectUtils.emptyMap());
@@ -46,28 +58,27 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public List<User> getAllUser() {
-        return userRepository.findAll();
+    public Page<User> getAllUser(Pageable pageable, UserDTO req) {
+        Specification<User> specification = GeneralSpecification.getSpecification(req);
+        return userRepository.findAll(specification, pageable);
     }
 
     @Override
-    public UserDTO updateUser(UserDTO userDTO) {
+    public UserBasicFormat updateUser(UserDTO userDTO, String token) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         try{
-
             Map<?,?> result = upload(userDTO.getImage());
 
-            User user = findUserById(userDTO.getId());
-            user.setId(userDTO.getId());
+            User user = getUserDetails(token);
             user.setName(userDTO.getName());
             user.setUsername(userDTO.getUsername());
             user.setAddress(userDTO.getAddress());
-            user.setBirthDate(user.getBirthDate());
+            Date dateOfBirth = dateFormat.parse(userDTO.getBirthDate());
+            user.setBirthDate(dateOfBirth);
             user.setProfilePicture(result.get("url").toString());
+            User updatedUser = userRepository.save(user);
 
-            userRepository.save(user);
-
-            return userDTO;
-
+            return UserBasicFormat.fromUser(updatedUser);
         } catch(Exception e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "failed updated user", e.getCause());
         }
@@ -91,10 +102,11 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public TopUpDTO topUp(TopUpDTO topUpDTO) {
+    public TopUpDTO topUp(TopUpDTO topUpDTO, String token) {
         try{
 
-            User user = userRepository.findById(topUpDTO.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+            User user = getUserDetails(token);
+            assert user != null;
             user.setBalance(topUpDTO.getAmount().add(user.getBalance()));
 
             userRepository.save(user);
@@ -104,5 +116,20 @@ public class UserServiceImpl implements UserService{
         } catch(Exception e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found", e.getCause());
         }
-    }    
+    }
+
+    private String parseJwt(String token) {
+        if(token != null && token.startsWith("Bearer ")) {
+            return token.substring(7);
+        }
+        return null;
+    }
+    private User getUserDetails(String token) {
+        String parsedToken = parseJwt(token);
+        if(parsedToken != null) {
+            JwtClaim user = jwt.getUserInfoByToken(parsedToken);
+            return loadByUserId(user.getUserId());
+        }
+        return null;
+    }
 }
