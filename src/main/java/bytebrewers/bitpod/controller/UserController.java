@@ -1,10 +1,5 @@
 package bytebrewers.bitpod.controller;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import bytebrewers.bitpod.utils.constant.ApiUrl;
 import bytebrewers.bitpod.utils.constant.Messages;
 import bytebrewers.bitpod.utils.dto.PageResponseWrapper;
@@ -18,10 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import com.midtrans.Midtrans;
-import com.midtrans.httpclient.SnapApi;
 import com.midtrans.httpclient.error.MidtransError;
-import com.midtrans.service.MidtransSnapApi;
 import bytebrewers.bitpod.entity.User;
 import bytebrewers.bitpod.service.UserService;
 import bytebrewers.bitpod.utils.dto.Res;
@@ -82,8 +74,4 @@ public class UserController{
         TopUpMidtransresponseDTO topUpMidtransresponseDTO = userService.topUpViaMidtrans(topUpSnapDTO, token);
         return Res.renderJson(topUpMidtransresponseDTO, "Topup success", HttpStatus.OK);
     }
-
-    // https://app.sandbox.midtrans.com/snap/v1/transactions/{token}/status
-    // 4811 1111 1111 1114 CC accepted
-    
 }
