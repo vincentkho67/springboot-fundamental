@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 public class TopUpSnapDTO {
 
+    private String userId;
     private Integer gross_amount;
 
 }
