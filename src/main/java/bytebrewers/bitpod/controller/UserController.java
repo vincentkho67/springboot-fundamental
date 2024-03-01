@@ -82,8 +82,8 @@ public class UserController{
     @PostMapping("/topup/midtrans")
     public ResponseEntity<?> topUpViaMidtrans(@RequestBody TopUpSnapDTO topUpSnapDTO) throws MidtransError{
 
-        Midtrans.clientKey = "SB-Mid-client-OBiBigdvoAu3vL7h";
-        Midtrans.serverKey = "SB-Mid-server-Y3PMGdICvF-bWAz5hqH8BpUV";
+        Midtrans.clientKey = "SB-Mid-client-mmalMqC0Sqqv81WL";
+        Midtrans.serverKey = "SB-Mid-server-v6MMOtdWj5g1EG3lAQihiYAV";
         // Get ClientKey from Midtrans Configuration class
         String clientKey = Midtrans.getClientKey();
 
@@ -103,11 +103,13 @@ public class UserController{
         TopUpMidtransresponseDTO topUpMidtransresponseDTO = new TopUpMidtransresponseDTO();
         topUpMidtransresponseDTO.setRequestBody(requestBody);
         topUpMidtransresponseDTO.setClientKey(clientKey);
-        topUpMidtransresponseDTO.setToken("https://app.sandbox.midtrans.com/snap/v3/redirection/"+SnapApi.createTransactionToken(requestBody));
-        
+        String token = SnapApi.createTransactionToken(requestBody);
+        topUpMidtransresponseDTO.setToken("https://app.sandbox.midtrans.com/snap/v3/redirection/"+token);
+//        https://app.sandbox.midtrans.com/snap/v1/transactions/{token}/status
+
 
         return Res.renderJson(topUpMidtransresponseDTO, "Topup success", HttpStatus.OK);
     }
-
+// 4811 1111 1111 1114 CC accepted
     
 }
