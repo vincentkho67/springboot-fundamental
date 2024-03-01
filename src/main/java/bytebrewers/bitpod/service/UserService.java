@@ -17,7 +17,7 @@ public interface UserService extends UserDetailsService{
     User loadByUserId(String userId);
     public User createUser(User user);
     User findUserById(String id);
-    Page<User> getAllUser(Pageable pageable, UserDTO userDTO);
+    Page<UserBasicFormat> getAllUser(Pageable pageable, UserDTO userDTO);
     UserBasicFormat updateUser(UserDTO userDTO, String token);
     void deleteUserByid(String id);
     TopUpDTO topUp (TopUpDTO topUpDTO, String token);

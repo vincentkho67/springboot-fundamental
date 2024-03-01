@@ -80,9 +80,10 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public Page<User> getAllUser(Pageable pageable, UserDTO req) {
+    public Page<UserBasicFormat> getAllUser(Pageable pageable, UserDTO req) {
         Specification<User> specification = GeneralSpecification.getSpecification(req);
-        return userRepository.findAll(specification, pageable);
+         Page<User> users = userRepository.findAll(specification, pageable);
+         return users.map(UserBasicFormat::fromUser);
     }
 
     @Override
