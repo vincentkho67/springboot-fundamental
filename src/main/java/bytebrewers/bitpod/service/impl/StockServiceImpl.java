@@ -10,6 +10,7 @@ import bytebrewers.bitpod.utils.helper.EntityUpdater;
 import bytebrewers.bitpod.utils.specification.GeneralSpecification;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class StockServiceImpl implements StockService {
     private final StockRepository stockRepository;
     private final RestTemplate restTemplate;
@@ -97,7 +99,7 @@ public class StockServiceImpl implements StockService {
         List<Stock> stocksInDatabase = stockRepository.findAll();
 
         // Fetch new stock data
-        List<StockDTO> fetchedStocks = fetch();
+        List<StockDTO> fetchedStocks = fetchWithoutUpdating();
         Map<String, Stock> stockMap = stocksInDatabase.stream()
                 .collect(Collectors.toMap(Stock::getName, Function.identity()));
 
@@ -106,7 +108,8 @@ public class StockServiceImpl implements StockService {
 
             if (existingStock != null) {
                 double percentageChange = calculatePercentageChange(existingStock.getPrice(), fetchedStock.getPrice());
-                RecommendationDTO recommendationDTO = createRecommendationDTO(fetchedStock, percentageChange);
+                String formattedPercentageChange = String.format("%.2f", percentageChange);
+                RecommendationDTO recommendationDTO = createRecommendationDTO(fetchedStock, formattedPercentageChange);
                 recommendations.add(recommendationDTO);
             }
         }
@@ -117,15 +120,15 @@ public class StockServiceImpl implements StockService {
     private double calculatePercentageChange(double oldPrice, double newPrice) {
         return ((newPrice - oldPrice) / oldPrice) * 100;
     }
-    private RecommendationDTO createRecommendationDTO(StockDTO fetchedStock, double percentageChange) {
+    private RecommendationDTO createRecommendationDTO(StockDTO fetchedStock, String formattedPercentageChange) {
         RecommendationDTO recommendationDTO = new RecommendationDTO();
         recommendationDTO.setStock(fetchedStock.toEntity());
 
         // Analyze the percentage change
-        String analysis = (percentageChange > 0) ? "Bullish" : "Bearish";
-        String recommendation = (percentageChange > 0) ? "Buy" : "Sell";
+        String analysis = (formattedPercentageChange.startsWith("-")) ? "Bearish" : "Bullish";
+        String recommendation = (formattedPercentageChange.startsWith("-")) ? "Sell" : "Buy";
 
-        recommendationDTO.setAnalysis(analysis + " with " + Math.abs(percentageChange) + "% change");
+        recommendationDTO.setAnalysis(analysis + " with " + formattedPercentageChange + "% change");
         recommendationDTO.setRecommendation(recommendation);
 
         return recommendationDTO;
@@ -146,5 +149,16 @@ public class StockServiceImpl implements StockService {
         }
 
         return new PageImpl<>(pageList, pageable, dtoList.size());
+    }
+
+    private List<StockDTO> fetchWithoutUpdating() {
+        ResponseEntity<JsonNode> res = restTemplate.getForEntity(mockUrl, JsonNode.class);
+        if (res.getStatusCode().is2xxSuccessful()) {
+            JsonNode apiResponse = res.getBody();
+            if (apiResponse != null) {
+                return StockDTO.mapFromApiResponse(apiResponse);
+            }
+        }
+        return Collections.emptyList();
     }
 }
