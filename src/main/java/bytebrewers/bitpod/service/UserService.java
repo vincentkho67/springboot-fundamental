@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.multipart.MultipartFile;
 
 import bytebrewers.bitpod.entity.User;
 import bytebrewers.bitpod.utils.dto.request.user.TopUpDTO;

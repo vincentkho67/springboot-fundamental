@@ -3,6 +3,8 @@ package bytebrewers.bitpod.utils.dto.request.user;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Column;
@@ -21,8 +23,5 @@ public class UserDTO {
 
     private String address;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date birthDate;
-
-    private String profilePicture;
+    private MultipartFile image;
 }
