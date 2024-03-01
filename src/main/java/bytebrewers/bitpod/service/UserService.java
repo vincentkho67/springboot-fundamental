@@ -1,11 +1,9 @@
 package bytebrewers.bitpod.service;
 
-import java.util.List;
-
+import bytebrewers.bitpod.utils.dto.response.user.UserBasicFormat;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.web.multipart.MultipartFile;
 
 import bytebrewers.bitpod.entity.User;
 import bytebrewers.bitpod.utils.dto.request.user.TopUpDTO;
@@ -15,8 +13,8 @@ public interface UserService extends UserDetailsService{
     User loadByUserId(String userId);
     public User createUser(User user);
     User findUserById(String id);
-    List<User> getAllUser();
-    UserDTO updateUser(UserDTO userDTO);
+    Page<User> getAllUser(Pageable pageable, UserDTO userDTO);
+    UserBasicFormat updateUser(UserDTO userDTO, String token);
     void deleteUserByid(String id);
-    TopUpDTO topUp (TopUpDTO topUpDTO);
+    TopUpDTO topUp (TopUpDTO topUpDTO, String token);
 }

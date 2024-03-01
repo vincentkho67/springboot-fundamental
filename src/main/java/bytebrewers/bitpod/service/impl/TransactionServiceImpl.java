@@ -161,8 +161,6 @@ public class TransactionServiceImpl implements TransactionService {
     }
     private void updateBuyTransactions(List<Transaction> req, int remainingLotAmount) {
         int toBeRemoved = remainingLotAmount;
-        log.info("YOU ARRIVED ON START OF LOOP: {}", toBeRemoved);
-
         for (Transaction t : req) {
             while (toBeRemoved > 0 && t.getLot() > 0) {
                 if (toBeRemoved >= t.getLot()) {

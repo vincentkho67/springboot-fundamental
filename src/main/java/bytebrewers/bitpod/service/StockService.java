@@ -2,6 +2,7 @@ package bytebrewers.bitpod.service;
 
 import bytebrewers.bitpod.entity.Stock;
 import bytebrewers.bitpod.utils.dto.request.stock.StockDTO;
+import bytebrewers.bitpod.utils.dto.response.stock.RecommendationDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -14,4 +15,5 @@ public interface StockService {
     Stock getById(String id);
     Stock update(String id, StockDTO stockDTO);
     void delete(String id);
+    Page<RecommendationDTO> recommend(Pageable pageable);
 }
