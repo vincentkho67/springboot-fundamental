@@ -76,9 +76,10 @@ public class UserController{
     }
 
     @PostMapping("/topup/midtrans")
-    public ResponseEntity<?> topUpViaMidtrans(@RequestBody TopUpSnapDTO topUpSnapDTO) throws MidtransError{
-
-        TopUpMidtransresponseDTO topUpMidtransresponseDTO = userService.topUpViaMidtrans(topUpSnapDTO);
+    public ResponseEntity<?> topUpViaMidtrans(@RequestBody TopUpSnapDTO topUpSnapDTO,
+                                              @RequestHeader(name = "Authorization") String token
+    ) throws MidtransError{
+        TopUpMidtransresponseDTO topUpMidtransresponseDTO = userService.topUpViaMidtrans(topUpSnapDTO, token);
         return Res.renderJson(topUpMidtransresponseDTO, "Topup success", HttpStatus.OK);
     }
 

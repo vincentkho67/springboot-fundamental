@@ -64,6 +64,36 @@ public class UserServiceImpl implements UserService{
 
     private final ExecutorService executorService;
 
+
+    @Override
+    public TopUpMidtransresponseDTO topUpViaMidtrans(TopUpSnapDTO topUpSnapDTO, String userToken) throws MidtransError {
+        Midtrans.clientKey = "SB-Mid-client-mmalMqC0Sqqv81WL";
+        Midtrans.serverKey = "SB-Mid-server-v6MMOtdWj5g1EG3lAQihiYAV";
+        // Get ClientKey from Midtrans Configuration class
+        String clientKey = Midtrans.getClientKey();
+
+        UUID idRand = UUID.randomUUID();
+        Map<String, Object> requestBody = new HashMap<>();
+
+        Map<String, String> transactionDetails = new HashMap<>();
+        transactionDetails.put("order_id", idRand.toString());
+        transactionDetails.put("gross_amount", topUpSnapDTO.getGross_amount().toString());
+
+        Map<String, String> creditCard = new HashMap<>();
+        creditCard.put("secure", "true");
+
+        requestBody.put("transaction_details", transactionDetails);
+        requestBody.put("credit_card", creditCard);
+
+        TopUpMidtransresponseDTO topUpMidtransresponseDTO = new TopUpMidtransresponseDTO();
+        topUpMidtransresponseDTO.setRequestBody(requestBody);
+        topUpMidtransresponseDTO.setClientKey(clientKey);
+        String token = SnapApi.createTransactionToken(requestBody);
+        topUpMidtransresponseDTO.setToken("https://app.sandbox.midtrans.com/snap/v3/redirection/"+token);
+
+        executorService.submit(() -> checkStatus(token, topUpSnapDTO.getGross_amount(), userToken));
+        return topUpMidtransresponseDTO;
+    }
     public Map<?, ?> upload(MultipartFile multipartFile) throws IOException{
         Map<?, ?> result = cloudinary.uploader().upload(multipartFile.getBytes(), ObjectUtils.emptyMap());
         return result;
@@ -111,9 +141,7 @@ public class UserServiceImpl implements UserService{
     public void deleteUserByid(String id) {
         userRepository.deleteById(id);
     }
-    
-    
-    
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByEmail(username).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized"));
@@ -141,75 +169,41 @@ public class UserServiceImpl implements UserService{
         }
     }
 
-    private String parseJwt(String token) {
-        if(token != null && token.startsWith("Bearer ")) {
-            return token.substring(7);
-        }
-        return null;
-    }
-    private User getUserDetails(String token) {
-        String parsedToken = parseJwt(token);
-        if(parsedToken != null) {
-            JwtClaim user = jwt.getUserInfoByToken(parsedToken);
-            return loadByUserId(user.getUserId());
-        }
-        return null;
-    }
-
     @Override
-    public TopUpMidtransresponseDTO topUpViaMidtrans(TopUpSnapDTO topUpSnapDTO) throws MidtransError {
-        Midtrans.clientKey = "SB-Mid-client-mmalMqC0Sqqv81WL";
-        Midtrans.serverKey = "SB-Mid-server-v6MMOtdWj5g1EG3lAQihiYAV";
-        // Get ClientKey from Midtrans Configuration class
-        String clientKey = Midtrans.getClientKey();
+    public User getUserDetails(String token) {
+        String parsedToken = null;
+        if(token != null && token.startsWith("Bearer ")) {
+            parsedToken = token.substring(7);
+        }
 
-        UUID idRand = UUID.randomUUID();
-        Map<String, Object> requestBody = new HashMap<>();
-        
-        Map<String, String> transactionDetails = new HashMap<>();
-        transactionDetails.put("order_id", idRand.toString());
-        transactionDetails.put("gross_amount", topUpSnapDTO.getGross_amount().toString());
-        
-        Map<String, String> creditCard = new HashMap<>();
-        creditCard.put("secure", "true");
-
-        requestBody.put("transaction_details", transactionDetails);
-        requestBody.put("credit_card", creditCard);
-
-        TopUpMidtransresponseDTO topUpMidtransresponseDTO = new TopUpMidtransresponseDTO();
-        topUpMidtransresponseDTO.setRequestBody(requestBody);
-        topUpMidtransresponseDTO.setClientKey(clientKey);
-        String token = SnapApi.createTransactionToken(requestBody);
-        topUpMidtransresponseDTO.setToken("https://app.sandbox.midtrans.com/snap/v3/redirection/"+token);
-
-        executorService.submit(() -> checkStatus(token, topUpSnapDTO.getGross_amount(), topUpSnapDTO.getUserId()));
-        return topUpMidtransresponseDTO;
+        JwtClaim user = jwt.getUserInfoByToken(parsedToken);
+        return loadByUserId(user.getUserId());
     }
 
     private void checkStatus(String token, Integer gross_amount, String userId) {
-        for(int i = 1; i <= 30; i++){
-            if(i == 30){
-                throw new RuntimeException("Midtrans timeout");
-            }
-
+        User user = getUserDetails(userId);
+        for(int i = 1; i <= 20; i++){
             try{
-                ResponseEntity<JsonNode> res = restTemplate.getForEntity("https://app.sandbox.midtrans.com/snap/v1/transactions/"+token+"/status", JsonNode.class);
-                JsonNode response = res.getBody().get("channel_response_message");
-                
-                if (response != null && "Approved".equals(response.asText())) {
-                        User user = loadByUserId(userId);
+                ResponseEntity<JsonNode> res = restTemplate.getForEntity(
+                        "https://app.sandbox.midtrans.com/snap/v1/transactions/"+token+"/status",
+                        JsonNode.class
+                );
+                JsonNode response = res.getBody();
+                if (response != null && response.has("channel_response_message")) {
+                    String channelResponseMessage = response.get("channel_response_message").asText();
+                    if ("Approved".equals(channelResponseMessage)) {
+                        // Update user balance logic here
                         BigDecimal userBalance = user.getBalance();
-                        BigDecimal totalTopUp =  BigDecimal.valueOf(gross_amount);
+                        BigDecimal totalTopUp = BigDecimal.valueOf(gross_amount);
                         BigDecimal totalBalance = userBalance.add(totalTopUp);
-                        log.info("user balance :{}", userBalance);
-                        log.info("total topup :{}", totalTopUp);
-                        log.info("totalBalance :{}", totalBalance);
                         user.setBalance(totalBalance);
                         userRepository.save(user);
+                        break;
+                    }
                 }
-                Thread.sleep(2000);
+                Thread.sleep(3000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                throw new RuntimeException("Midtrans timeout, Balance top up failed");
             }
         }
     }

@@ -21,6 +21,8 @@ public interface UserService extends UserDetailsService{
     UserBasicFormat updateUser(UserDTO userDTO, String token);
     void deleteUserByid(String id);
     TopUpDTO topUp (TopUpDTO topUpDTO, String token);
-    TopUpMidtransresponseDTO topUpViaMidtrans (TopUpSnapDTO topUpSnapDTO) throws MidtransError;
+    TopUpMidtransresponseDTO topUpViaMidtrans (TopUpSnapDTO topUpSnapDTO, String userToken) throws MidtransError;
+
+    User getUserDetails(String token);
     
 }

@@ -70,26 +70,11 @@ public class PortfolioServiceImpl implements PortfolioService {
 
     @Override
     public Portfolio currentUser(String token) {
-        User user = getUserDetails(token);
+        User user = userService.getUserDetails(token);
         Portfolio port = getByUser(user);
         String returns = setReturns(port.getTransactions());
         port.setReturns(returns);
         return port;
-    }
-
-    private String parseJwt(String token) {
-        if(token != null && token.startsWith("Bearer ")) {
-            return token.substring(7);
-        }
-        return null;
-    }
-    private User getUserDetails(String token) {
-        String parsedToken = parseJwt(token);
-        if(parsedToken != null) {
-            JwtClaim user = jwt.getUserInfoByToken(parsedToken);
-            return userService.loadByUserId(user.getUserId());
-        }
-        return null;
     }
 
     private String setReturns(List<Transaction> transactions) {

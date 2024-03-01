@@ -47,7 +47,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Transactional
     @Override
     public Transaction create(TransactionDTO req, String token) {
-        User user = getUserDetails(token);
+        User user = userService.getUserDetails(token);
         Stock stock = stockService.getById(req.getStockId());
         req.setPrice(stock.getPrice());
         Bank bank = bankService.getById(req.getBankId());
@@ -90,27 +90,13 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Transaction getTransactionByCurrentUser(String token, String id) {
-        User user = getUserDetails(token);
+        User user = userService.getUserDetails(token);
         List<Transaction> t = portfolioService.getByUser(user).getTransactions();
 
         return t.stream().filter(transaction -> transaction.getId().equals(id)).findFirst()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found"));
     }
 
-    private String parseJwt(String token) {
-        if(token != null && token.startsWith("Bearer ")) {
-            return token.substring(7);
-        }
-        return null;
-    }
-    private User getUserDetails(String token) {
-        String parsedToken = parseJwt(token);
-        if(parsedToken != null) {
-            JwtClaim user = jwt.getUserInfoByToken(parsedToken);
-            return userService.loadByUserId(user.getUserId());
-        }
-        return null;
-    }
     private void updatePortfolio(Portfolio portfolio) {
         // Retrieve all transactions associated with the portfolio
         List<Transaction> transactions = transactionRepository.findByPortfolio(portfolio);
