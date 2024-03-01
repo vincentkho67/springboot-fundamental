@@ -2,26 +2,25 @@ package bytebrewers.bitpod.controller;
 
 
 import bytebrewers.bitpod.util.Helper;
+import bytebrewers.bitpod.utils.dto.Res;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.MockMvcBuilder.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -51,7 +50,7 @@ public class BankControllerTest {
 
     @Order(2)
     @Test
-    public void testCreateBank() throws Exception {
+    void createBank() throws Exception {
         Map<String, Object> req = new HashMap<>();
         req.put("name", "Mandiri");
         req.put("address", "Jl. Jendral Sudirman No. 1");
@@ -69,5 +68,59 @@ public class BankControllerTest {
             id = data.get("id").toString();
             address = data.get("address").toString();
         });
+    }
+
+    @Order(3)
+    @Test
+    void index() throws Exception {
+        createBank(); // call the 2nd method to create bank first
+        ResultActions result = Helper.getAll(mockMvc, "/api/banks", token);
+        result.andDo(res -> {
+            String jsonString = res.getResponse().getContentAsString();
+            Map<String, Object> mapResponse = objectMapper.readValue(jsonString, new TypeReference<>(){});
+            Map<String, Object> data = (Map<String, Object>) mapResponse.get("data");
+            List<Map<String, Object>> content = (List<Map<String, Object>>) data.get("content");
+            assertNotNull(content);
+            assertFalse(content.isEmpty());
+        });
+    }
+
+
+    @Test
+    void show() throws Exception {
+        createBank();
+        ResultActions result = Helper.getById(mockMvc, "/api/banks/", token, id);
+
+        result.andDo(res -> {
+            String jsonString = res.getResponse().getContentAsString();
+            Map<String, Object> mapResponse = objectMapper.readValue(jsonString, new TypeReference<>(){});
+            Map<String, Object> data = (Map<String, Object>) mapResponse.get("data");
+            assertEquals(id, data.get("id").toString());
+            assertEquals(address, data.get("address").toString());
+        });
+    }
+
+    @Test
+    void update() throws Exception {
+        createBank();
+        Map<String, Object> requestParam = new HashMap<>();
+        requestParam.put("name", "BRI");
+        requestParam.put("address", "Jl. Jendral Sudirman No. 2");
+        ResultActions result = Helper.update(mockMvc, objectMapper, "/api/banks", token, id, requestParam);
+
+        result.andDo(res -> {
+            String jsonString = res.getResponse().getContentAsString();
+            Map<String, Object> mapResponse = objectMapper.readValue(jsonString, new TypeReference<>(){});
+            Map<String, Object> data = (Map<String, Object>) mapResponse.get("data");
+            assertEquals(requestParam.get("name"), data.get("name"));
+            assertEquals(requestParam.get("address"), data.get("address"));
+        });
+    }
+
+    @Test
+    void delete() throws Exception{
+        createBank();
+        ResultActions result = Helper.delete(mockMvc, "/api/banks", token, id);
+        result.andExpect(status().isOk());
     }
 }
