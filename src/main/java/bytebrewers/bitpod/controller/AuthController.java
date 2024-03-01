@@ -27,7 +27,6 @@ public class AuthController {
     public ResponseEntity<?> register (@RequestBody RegisterDTO registerDTO){
         UserResponseDTO userResponse = authService.register(registerDTO);
         return Res.renderJson(userResponse, "register success", HttpStatus.CREATED);
-
     }
 
     @PostMapping("/register/admin")
