@@ -1,5 +1,6 @@
 package bytebrewers.bitpod;
 import bytebrewers.bitpod.controller.*;
+import bytebrewers.bitpod.service.impl.RoleServiceImplTest;
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
@@ -9,7 +10,8 @@ import org.junit.platform.suite.api.Suite;
         BankControllerTest.class,
         PortfolioControllerTest.class,
         TransactionControllerTest.class,
-        StockControllerTest.class
+        StockControllerTest.class,
+        RoleServiceImplTest.class
 })
 public class TestSuite {
 
