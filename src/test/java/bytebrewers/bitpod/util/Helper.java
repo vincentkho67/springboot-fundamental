@@ -148,7 +148,10 @@ public class Helper {
         String jsonString = result.andReturn().getResponse().getContentAsString();
         Map<String, Object> mapResponse = objectMapper.readValue(jsonString, new TypeReference<>(){});
 
-        return mapResponse.get("data").toString();
+        String token = mapResponse.get("data").toString();
+        assertNotNull(token);
+
+        return token;
     }
 
     public static ResultActions topUp(MockMvc mockMvc, ObjectMapper objectMapper, String token) throws Exception {
@@ -200,7 +203,7 @@ public class Helper {
 
     // TODO: TRANSACTION HELPER
     public Transaction createBuyTransaction(Stock stock, Portfolio portfolio, Bank bank) {
-        return Transaction.builder()
+         Transaction trans = Transaction.builder()
                 .price(1000.0)
                 .lot(1000)
                 .transactionType(buy)
@@ -208,10 +211,12 @@ public class Helper {
                 .portfolio(portfolio)
                 .bank(bank)
                 .build();
+
+         return transactionRepository.save(trans);
     }
 
     public Transaction createSellTransaction(Stock stock, Portfolio portfolio, Bank bank) {
-        return Transaction.builder()
+        Transaction trans = Transaction.builder()
                 .price(1000.0)
                 .lot(5)
                 .transactionType(sell)
@@ -219,6 +224,7 @@ public class Helper {
                 .portfolio(portfolio)
                 .bank(bank)
                 .build();
+        return transactionRepository.save(trans);
     }
 
     public ETransactionType buy = ETransactionType.BUY;
@@ -235,6 +241,14 @@ public class Helper {
 
     public static ResultActions getAllBanks(MockMvc mockMvc, String token) throws Exception {
         return getAll(mockMvc, "/api/banks", token);
+    }
+
+    public Bank createBank() {
+        Bank bank = Bank.builder()
+                .name("bank")
+                .address("jakarta")
+                .build();
+        return bankRepository.save(bank);
     }
 
     // TODO: FOR HITTING ENDPOINT START

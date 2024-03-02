@@ -62,7 +62,7 @@ public class TransactionController {
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
-   @DeleteMapping
+   @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable String id) {
         transactionService.delete(id);
         return Res.renderJson(null, Messages.TRANSACTION_DELETED, HttpStatus.OK);
