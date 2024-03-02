@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -20,13 +21,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Getter
 @Setter
 @Component
+@Slf4j
 public class Helper {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
@@ -35,6 +37,7 @@ public class Helper {
     private final BankRepository bankRepository;
     private final PortfolioRepository portfolioRepository;
     private final RoleRepository roleRepository;
+    private final UserService userService;
 
     public Helper(PasswordEncoder passwordEncoder, UserRepository userRepository, StockRepository stockRepository, TransactionRepository transactionRepository, BankRepository bankRepository, PortfolioRepository portfolioRepository, RoleRepository roleRepository, UserService userService) {
         this.passwordEncoder = passwordEncoder;
@@ -44,6 +47,7 @@ public class Helper {
         this.bankRepository = bankRepository;
         this.portfolioRepository = portfolioRepository;
         this.roleRepository = roleRepository;
+        this.userService = userService;
     }
 
     // TODO: FOR USER START
@@ -310,5 +314,26 @@ public class Helper {
 
         throw new RuntimeException("Failed to extract the first 'id' from the response.");
     }
+    // TODO: Get Index Response
+    public static void processResult(ResultActions result, ObjectMapper objectMapper) throws Exception {
+        result.andDo(res -> {
+            String jsonString = res.getResponse().getContentAsString();
+            Map<String, Object> mapResponse = objectMapper.readValue(jsonString, new TypeReference<>(){});
+            Map<String, Object> data = (Map<String, Object>) mapResponse.get("data");
+            List<Map<String, Object>> content = (List<Map<String, Object>>) data.get("content");
+            assertNotNull(content);
+            assertFalse(content.isEmpty());
+        });
+    }
 
+    // TODO: Get Show Response
+    public static void showById(MockMvc mockMvc, String endpoint, String token, String id, ObjectMapper objectMapper) throws Exception {
+        ResultActions result = getById(mockMvc, endpoint, token, id);
+        result.andDo(res -> {
+            String jsonString = res.getResponse().getContentAsString();
+            Map<String, Object> mapResponse = objectMapper.readValue(jsonString, new TypeReference<>(){});
+            Map<String, Object> data = (Map<String, Object>) mapResponse.get("data");
+            assertEquals(id, data.get("id").toString());
+        });
+    }
 }

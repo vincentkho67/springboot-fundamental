@@ -74,14 +74,7 @@ public class BankControllerTest {
     void index() throws Exception {
         createBank(); // call the 2nd method to create bank first
         ResultActions result = Helper.getAll(mockMvc, "/api/banks", token);
-        result.andDo(res -> {
-            String jsonString = res.getResponse().getContentAsString();
-            Map<String, Object> mapResponse = objectMapper.readValue(jsonString, new TypeReference<>(){});
-            Map<String, Object> data = (Map<String, Object>) mapResponse.get("data");
-            List<Map<String, Object>> content = (List<Map<String, Object>>) data.get("content");
-            assertNotNull(content);
-            assertFalse(content.isEmpty());
-        });
+        Helper.processResult(result, objectMapper);
     }
 
 
