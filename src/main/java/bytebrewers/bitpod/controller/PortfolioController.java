@@ -48,7 +48,7 @@ public class PortfolioController {
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable String id) {
         portfolioService.delete(id);
         return Res.renderJson(null, Messages.PORTFOLIO_DELETED, HttpStatus.OK);

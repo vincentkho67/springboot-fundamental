@@ -64,7 +64,6 @@ public class UserServiceImpl implements UserService{
 
     private final ExecutorService executorService;
 
-
     @Override
     public TopUpMidtransresponseDTO topUpViaMidtrans(TopUpSnapDTO topUpSnapDTO, String userToken) throws MidtransError {
         Midtrans.clientKey = "SB-Mid-client-mmalMqC0Sqqv81WL";
@@ -98,24 +97,20 @@ public class UserServiceImpl implements UserService{
         Map<?, ?> result = cloudinary.uploader().upload(multipartFile.getBytes(), ObjectUtils.emptyMap());
         return result;
     }
-
     @Override
     public User createUser(User user) {
         return userRepository.save(user);
     }
-
     @Override
     public User findUserById(String id) {
         return Auditable.searchById(userRepository.findById(id), "User Not Found");
     }
-
     @Override
     public Page<UserBasicFormat> getAllUser(Pageable pageable, UserDTO req) {
         Specification<User> specification = GeneralSpecification.getSpecification(req);
          Page<User> users = userRepository.findAll(specification, pageable);
          return users.map(UserBasicFormat::fromUser);
     }
-
     @Override
     public UserBasicFormat updateUser(UserDTO userDTO, String token) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -136,17 +131,14 @@ public class UserServiceImpl implements UserService{
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "failed updated user", e.getCause());
         }
     }
-
     @Override
     public void deleteUserByid(String id) {
         userRepository.deleteById(id);
     }
-
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByEmail(username).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized"));
     }
-    
     @Override
     public User loadByUserId(String userId) {
         return userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized"));

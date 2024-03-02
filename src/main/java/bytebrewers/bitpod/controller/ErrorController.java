@@ -28,6 +28,10 @@ public class ErrorController {
             message = "No Transaction or Portfolio Found";
             status = HttpStatus.NOT_FOUND;
         }
+        if (e.getMessage().contains("java.util.List.iterator()")) {
+            message = "No Portfolio Found";
+            status = HttpStatus.NOT_FOUND;
+        }
         return Res.renderJson(null, message, status);
     }
 

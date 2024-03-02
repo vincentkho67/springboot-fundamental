@@ -72,6 +72,6 @@ public class UserController{
                                               @RequestHeader(name = "Authorization") String token
     ) throws MidtransError{
         TopUpMidtransresponseDTO topUpMidtransresponseDTO = userService.topUpViaMidtrans(topUpSnapDTO, token);
-        return Res.renderJson(topUpMidtransresponseDTO, "Topup success", HttpStatus.OK);
+        return Res.renderJson(topUpMidtransresponseDTO, "Proceed to payment", HttpStatus.OK);
     }
 }

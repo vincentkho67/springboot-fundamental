@@ -68,7 +68,7 @@ public class AuthControllerTest {
             Map<String, Object> mapResponse = objectMapper.readValue(jsonString, new TypeReference<>(){});
 
             Map<String, Object> data = (Map<String, Object>) mapResponse.get("data");
-            assertEquals("member@gmail.com", data.get("email"));
+            assertEquals("member@email.com", data.get("email"));
         });
     }
 }

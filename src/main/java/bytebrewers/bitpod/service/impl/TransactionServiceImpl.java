@@ -34,9 +34,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final StockService stockService;
     private final PortfolioService portfolioService;
     private final BankService bankService;
-    private final JwtUtils jwt;
     private final UserService userService;
-
 
     @Override
     public Page<Transaction> getAll(Pageable pageable, TransactionDTO req) {
