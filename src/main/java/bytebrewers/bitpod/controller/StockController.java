@@ -8,6 +8,7 @@ import bytebrewers.bitpod.utils.dto.PageResponseWrapper;
 import bytebrewers.bitpod.utils.dto.Res;
 import bytebrewers.bitpod.utils.dto.request.stock.StockDTO;
 import bytebrewers.bitpod.utils.dto.response.stock.RecommendationDTO;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,6 +25,11 @@ import org.springframework.data.domain.Pageable;
 @Tag(name = "Stock", description = "Stock API")
 public class StockController {
     private final StockService stockService;
+
+    @Operation(
+        description = "Get all stock",
+        summary = "get all stock"
+    )
     @GetMapping
     public ResponseEntity<?> index(
             @PageableDefault(page = 0, size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable,
@@ -34,16 +40,30 @@ public class StockController {
         return Res.renderJson(responseWrapper, Messages.STOCK_FOUND, HttpStatus.OK);
     }
 
+    @Operation(
+        description = "fetch stock",
+        summary = "fetch stock"
+    )
     @GetMapping("/fetch")
     public ResponseEntity<?> fetch() {
         return Res.renderJson(stockService.fetch(), Messages.STOCK_UPDATED, HttpStatus.OK);
     }
 
+
+    @Operation(
+        description = "Get stock by id",
+        summary = "Get stock by id"
+    )
     @GetMapping("/{id}")
     public ResponseEntity<?> show(@PathVariable String id) {
         Stock stock = stockService.getById(id);
         return Res.renderJson(stock, Messages.STOCK_FOUND, HttpStatus.OK);
     }
+
+    @Operation(
+        description = "Stock recomendation",
+        summary = "Stock recomendation"
+    )
     @GetMapping("/recommendation")
     public ResponseEntity<?> recommend(
             @PageableDefault(page = 0, size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable

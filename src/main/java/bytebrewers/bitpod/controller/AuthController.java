@@ -27,6 +27,60 @@ public class AuthController {
 
      private final AuthService authService;
     
+     @Operation(
+        description = "Register Member",
+        summary = "Register Member",
+        responses = {
+            @ApiResponse(
+                description = "Register success",
+                responseCode = "202",
+                content = {
+                    @io.swagger.v3.oas.annotations.media.Content(
+                        mediaType = "application/json",
+                        schema = @io.swagger.v3.oas.annotations.media.Schema(
+                            // implementation = ControllerResponse.class,
+                            type = "object",
+                            example = """
+                                    {
+                                        "status": "Created",
+                                        "message": "register success",
+                                        "data": {
+                                          "email": "admin9@gmail.com",
+                                          "roles": [
+                                            "ROLE_MEMBER"
+                                          ]
+                                        }
+                                    }
+                                    """
+                        )
+                    )
+                }
+                
+            ),
+            @ApiResponse(
+                description = "Login failed",
+                responseCode = "400",
+                content = {
+                    @io.swagger.v3.oas.annotations.media.Content(
+                        mediaType = "application/json",
+                        schema = @io.swagger.v3.oas.annotations.media.Schema(
+                            // implementation = ControllerResponse.class,
+                            type = "object",
+                            example = """
+                                    {
+                                        
+                                        "status": "Bad Request",
+                                        "message": "failed to register",
+                                        "data": null
+                                          
+                                    }
+                                    """
+                        )
+                    )
+                }
+            )
+        }
+    )
     @PostMapping("/register")
     public ResponseEntity<?> register (@RequestBody RegisterDTO registerDTO){
         UserResponseDTO userResponse = authService.register(registerDTO);
@@ -34,7 +88,61 @@ public class AuthController {
     }
 
 
-    
+    @Operation(
+        description = "Register Admin",
+        summary = "Register Admin (ADMIN ONLY)",
+        responses = {
+            @ApiResponse(
+                description = "Register success",
+                responseCode = "202",
+                content = {
+                    @io.swagger.v3.oas.annotations.media.Content(
+                        mediaType = "application/json",
+                        schema = @io.swagger.v3.oas.annotations.media.Schema(
+                            // implementation = ControllerResponse.class,
+                            type = "object",
+                            example = """
+                                    {
+                                        "status": "Created",
+                                        "message": "register success",
+                                        "data": {
+                                          "email": "admin9@gmail.com",
+                                          "roles": [
+                                            "ROLE_MEMBER",
+                                            "ROLE_ADMIN"
+                                          ]
+                                        }
+                                    }
+                                    """
+                        )
+                    )
+                }
+                
+            ),
+            @ApiResponse(
+                description = "Login failed",
+                responseCode = "400",
+                content = {
+                    @io.swagger.v3.oas.annotations.media.Content(
+                        mediaType = "application/json",
+                        schema = @io.swagger.v3.oas.annotations.media.Schema(
+                            // implementation = ControllerResponse.class,
+                            type = "object",
+                            example = """
+                                    {
+                                        
+                                        "status": "Bad Request",
+                                        "message": "failed to register",
+                                        "data": null
+                                          
+                                    }
+                                    """
+                        )
+                    )
+                }
+            )
+        }
+    )
     @PostMapping("/register/admin")
     public ResponseEntity<?> registerAdmin (@RequestBody RegisterDTO registerDTO){
         UserResponseDTO userResponse = authService.registerAdmin(registerDTO);
