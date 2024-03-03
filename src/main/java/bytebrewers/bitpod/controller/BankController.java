@@ -7,6 +7,8 @@ import bytebrewers.bitpod.utils.constant.Messages;
 import bytebrewers.bitpod.utils.dto.PageResponseWrapper;
 import bytebrewers.bitpod.utils.dto.Res;
 import bytebrewers.bitpod.utils.dto.request.bank.BankDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -22,9 +24,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(ApiUrl.BASE_URL + ApiUrl.BASE_BANK)
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Bank", description = "Bank API")
 public class BankController {
     private final BankService bankService;
 
+    @Operation(
+        description = "Get All banks",
+        summary = "Get All banks"
+    )
     @GetMapping
     public ResponseEntity<?> index(
             @PageableDefault(page = 0, size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable,
@@ -35,12 +42,20 @@ public class BankController {
         return Res.renderJson(responseWrapper, Messages.BANK_FOUND, HttpStatus.OK);
     }
 
+    @Operation(
+        description = "Get bank by id",
+        summary = "Get bank by id"
+    )
     @GetMapping("/{id}")
     public ResponseEntity<?> show(@PathVariable Integer id) {
         Bank bank = bankService.getById(id);
         return Res.renderJson(bank, Messages.BANK_FOUND, HttpStatus.OK);
     }
 
+    @Operation(
+        description = "Create bank",
+        summary = "Create bank (ADMIN ONLY)"
+    )
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @PostMapping
     public ResponseEntity<?> create(@RequestBody BankDTO bankDTO) {
@@ -48,6 +63,10 @@ public class BankController {
         return Res.renderJson(newBank, Messages.BANK_CREATED, HttpStatus.CREATED);
     }
 
+    @Operation(
+        description = "Update bank",
+        summary = "Update bank (ADMIN ONLY)"
+    )
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody BankDTO bankDTO) {
@@ -55,6 +74,10 @@ public class BankController {
         return Res.renderJson(updatedBank, Messages.BANK_UPDATED, HttpStatus.OK);
     }
 
+    @Operation(
+        description = "Delete bank",
+        summary = "Delete bank (ADMIN ONLY)"
+    )
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) {

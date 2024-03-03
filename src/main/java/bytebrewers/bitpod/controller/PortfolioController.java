@@ -9,6 +9,8 @@ import bytebrewers.bitpod.utils.dto.PageResponseWrapper;
 import bytebrewers.bitpod.utils.dto.Res;
 import bytebrewers.bitpod.utils.dto.request.portfolio.PortfolioDTO;
 import bytebrewers.bitpod.utils.dto.request.transaction.TransactionDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,9 +24,14 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(ApiUrl.BASE_URL + ApiUrl.BASE_PORTFOLIO)
 @RequiredArgsConstructor
+@Tag(name = "Portfolio", description = "Portfolio API")
 public class PortfolioController {
     private final PortfolioService portfolioService;
 
+    @Operation(
+        description = "Get All Portfolio",
+        summary = "Get All Portfolio (ADMIN ONLY)"
+    )
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @GetMapping
     public ResponseEntity<?> index(
@@ -35,18 +42,32 @@ public class PortfolioController {
         PageResponseWrapper<Portfolio> responseWrapper = new PageResponseWrapper<>(res);
         return Res.renderJson(responseWrapper, Messages.PORTFOLIO_FOUND, HttpStatus.OK);
     }
+
+    @Operation(
+        description = "Get portfolio by id",
+        summary = "Get portfolio by id " 
+    )
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<?> show(@PathVariable String id) {
         Portfolio portfolio = portfolioService.getById(id);
         return Res.renderJson(portfolio, Messages.PORTFOLIO_FOUND, HttpStatus.OK);
     }
+
+    @Operation(
+        description = "Show portfolio by current user",
+        summary = "Show portfolio by current user"
+    )
     @GetMapping("/current")
     public ResponseEntity<?> showByCurrentUser(@RequestHeader(name = "Authorization") String token) {
         Portfolio portfolio = portfolioService.currentUser(token);
         return Res.renderJson(portfolio, Messages.PORTFOLIO_FOUND, HttpStatus.OK);
     }
 
+    @Operation(
+        description = "Delete portfolio by id",
+        summary = "Delete portfolio by id (ADMIN ONLY)"
+    )
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable String id) {
