@@ -4,6 +4,7 @@ import bytebrewers.bitpod.utils.constant.ApiUrl;
 import bytebrewers.bitpod.utils.constant.Messages;
 import bytebrewers.bitpod.utils.dto.PageResponseWrapper;
 import bytebrewers.bitpod.utils.dto.response.user.UserBasicFormat;
+import bytebrewers.bitpod.utils.swagger.user.SwaggerUserUpdate;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,12 +35,8 @@ import lombok.RequiredArgsConstructor;
 public class UserController{
     private final UserService userService;
 
-    @Operation(
-        description = "Update User",
-        summary = "Update User"
-    )
+    @SwaggerUserUpdate
     @PutMapping(
-        
         consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
         produces = {MediaType.APPLICATION_JSON_VALUE}
     )

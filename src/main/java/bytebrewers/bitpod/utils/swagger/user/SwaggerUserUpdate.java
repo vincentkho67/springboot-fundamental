@@ -1,4 +1,4 @@
-package bytebrewers.bitpod.utils.swagger.auth;
+package bytebrewers.bitpod.utils.swagger.user;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,12 +12,12 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Operation(
-        description = "Login user",
-        summary = "Login user",
+        description = "Update User",
+        summary = "Update user and handle profile upload on Cloudinary",
         responses = {
                 @ApiResponse(
-                        description = "Login success",
-                        responseCode = "202",
+                        description = "User Updated",
+                        responseCode = "200",
                         content = {
                                 @Content(
                                         mediaType = "application/json",
@@ -25,9 +25,14 @@ import java.lang.annotation.Target;
                                                 type = "object",
                                                 example = """
                                 {
-                                   "status": "Accepted",
-                                   "message": "login success",
-                                   "data" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"  
+                                    "status": "OK",
+                                    "message": "User Updated",
+                                    "data": {
+                                      "email": "admin9@gmail.com",
+                                      "roles": [
+                                        "ROLE_MEMBER"
+                                      ]
+                                    }
                                 }
                                 """
                                         )
@@ -44,9 +49,11 @@ import java.lang.annotation.Target;
                                                 type = "object",
                                                 example = """
                                 {
-                                   "status": "Bad Request",
-                                   "message": "login failed",
-                                   "data" : "null"
+                                    
+                                    "status": "Bad Request",
+                                    "message": "failed to register",
+                                    "data": null
+                                      
                                 }
                                 """
                                         )
@@ -55,5 +62,5 @@ import java.lang.annotation.Target;
                 )
         }
 )
-public @interface AuthControllerSwaggerLogin {
+public @interface SwaggerUserUpdate {
 }
