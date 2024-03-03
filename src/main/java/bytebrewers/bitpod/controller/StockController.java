@@ -8,6 +8,7 @@ import bytebrewers.bitpod.utils.dto.PageResponseWrapper;
 import bytebrewers.bitpod.utils.dto.Res;
 import bytebrewers.bitpod.utils.dto.request.stock.StockDTO;
 import bytebrewers.bitpod.utils.dto.response.stock.RecommendationDTO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 @RestController
 @RequestMapping(ApiUrl.BASE_URL + ApiUrl.BASE_STOCK)
 @RequiredArgsConstructor
+@Tag(name = "Stock", description = "Stock API")
 public class StockController {
     private final StockService stockService;
     @GetMapping

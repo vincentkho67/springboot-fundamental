@@ -7,6 +7,7 @@ import bytebrewers.bitpod.utils.constant.Messages;
 import bytebrewers.bitpod.utils.dto.PageResponseWrapper;
 import bytebrewers.bitpod.utils.dto.Res;
 import bytebrewers.bitpod.utils.dto.request.transaction.TransactionDTO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
 import org.springframework.data.domain.Page;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(ApiUrl.BASE_URL + ApiUrl.BASE_TRANSACTION)
 @RequiredArgsConstructor
+@Tag(name = "Transaction", description = "Transaction API")
 public class TransactionController {
     private final TransactionService transactionService;
 

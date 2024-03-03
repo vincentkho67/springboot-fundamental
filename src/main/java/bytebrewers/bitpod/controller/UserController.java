@@ -4,6 +4,8 @@ import bytebrewers.bitpod.utils.constant.ApiUrl;
 import bytebrewers.bitpod.utils.constant.Messages;
 import bytebrewers.bitpod.utils.dto.PageResponseWrapper;
 import bytebrewers.bitpod.utils.dto.response.user.UserBasicFormat;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -26,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping(ApiUrl.BASE_URL + ApiUrl.BASE_USER)
 @RequiredArgsConstructor
+@Tag(name = "User", description = "User API")
 public class UserController{
     private final UserService userService;
 

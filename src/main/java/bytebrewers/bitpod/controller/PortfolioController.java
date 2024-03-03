@@ -9,6 +9,7 @@ import bytebrewers.bitpod.utils.dto.PageResponseWrapper;
 import bytebrewers.bitpod.utils.dto.Res;
 import bytebrewers.bitpod.utils.dto.request.portfolio.PortfolioDTO;
 import bytebrewers.bitpod.utils.dto.request.transaction.TransactionDTO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(ApiUrl.BASE_URL + ApiUrl.BASE_PORTFOLIO)
 @RequiredArgsConstructor
+@Tag(name = "Portfolio", description = "Portfolio API")
 public class PortfolioController {
     private final PortfolioService portfolioService;
 

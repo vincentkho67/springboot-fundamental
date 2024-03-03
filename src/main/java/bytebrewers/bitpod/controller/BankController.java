@@ -7,6 +7,7 @@ import bytebrewers.bitpod.utils.constant.Messages;
 import bytebrewers.bitpod.utils.dto.PageResponseWrapper;
 import bytebrewers.bitpod.utils.dto.Res;
 import bytebrewers.bitpod.utils.dto.request.bank.BankDTO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(ApiUrl.BASE_URL + ApiUrl.BASE_BANK)
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Bank", description = "Bank API")
 public class BankController {
     private final BankService bankService;
 
