@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
      private final AuthService authService;
-     @SwaggerAuth
+    @SwaggerAuth
     @PostMapping("/register")
     public ResponseEntity<?> register (@RequestBody @Valid RegisterDTO registerDTO){
         UserResponseDTO userResponse = authService.register(registerDTO);
