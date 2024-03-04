@@ -198,7 +198,7 @@ public class UserServiceImpl implements UserService{
         for(int i = 1; i <= 20; i++){
             try{
                 ResponseEntity<JsonNode> res = restTemplate.getForEntity(
-                        midtransUrl + token + "/status",
+                        midtransStatusUrl + token + "/status",
                         JsonNode.class
                 );
                 JsonNode response = res.getBody();

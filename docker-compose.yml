@@ -1,0 +1,57 @@
+services:
+  mysql:
+    container_name: sqlserver
+    image: mysql
+    ports:
+      - 3306:3306
+    networks:
+      - bit_pods_network
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=bitpods_db
+      - MYSQL_DATABASE=bid_pods_db_test
+  mockserver:
+    depends_on:
+      - mysql
+    container_name: mockserver
+    image: vincentkho67/mock-api
+    ports:
+      - 8081:8081
+    networks:
+      - bit_pods_network
+    environment:
+      - PORT=8081
+      - DB_HOST=sqlserver
+      - DB_PORT=3306
+      - DB_NAME=bitpods_test_db
+  bitpods:
+    depends_on:
+      - mysql
+      - mockserver
+    container_name: bitpods
+    image: vincentkho67/bit-pod
+    ports:
+      - 8080:8080
+    environment:
+      - PORT=8080
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=bitpods_db
+      - JWT_SECRET=bitpods
+      - JWT_EXPIRATION=36000
+      - APP_NAME=bitpods
+      - MOCK_STOCK_URL=http://mockserver:8081/api/stocks
+      - MIDTRANS_CLIENT_KEY=
+      - MIDTRANS_SERVER_KEY=
+      - MIDTRANS_URL=
+      - MIDTRANS_STATUS_URL=
+      - CLOUD_NAME=
+      - CLOUD_API_KEY=
+      - CLOUD_API_SECRET=
+    networks:
+      - bit_pods_network
+networks:
+  bit_pods_network:
+    name: bit_pods_network
