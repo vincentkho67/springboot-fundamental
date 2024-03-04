@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
@@ -42,7 +43,7 @@ public class StockServiceImpl implements StockService {
         Specification<Stock> specification = GeneralSpecification.getSpecification(stockDTO);
         return stockRepository.findAll(specification, pageable);
     }
-
+    @Scheduled(initialDelay = 0, fixedRate = 300000)
     @Override
     public List<StockDTO> fetch() {
         ResponseEntity<JsonNode> res = restTemplate.getForEntity(mockUrl, JsonNode.class);
