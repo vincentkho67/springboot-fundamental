@@ -18,7 +18,8 @@ import org.junit.platform.suite.api.Suite;
         RoleServiceTest.class,
         StockServiceTest.class,
         TransactionServiceTest.class,
-        UserServiceTest.class
+        UserServiceTest.class,
+
 })
 public class TestSuite {
 
