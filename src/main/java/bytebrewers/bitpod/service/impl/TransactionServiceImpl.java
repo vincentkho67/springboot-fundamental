@@ -1,6 +1,7 @@
 package bytebrewers.bitpod.service.impl;
 
 import bytebrewers.bitpod.entity.*;
+import bytebrewers.bitpod.repository.PortfolioRepository;
 import bytebrewers.bitpod.repository.TransactionRepository;
 import bytebrewers.bitpod.security.JwtUtils;
 import bytebrewers.bitpod.service.*;
@@ -35,6 +36,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final PortfolioService portfolioService;
     private final BankService bankService;
     private final UserService userService;
+    private final PortfolioRepository portfolioRepository;
 
     @Override
     public Page<Transaction> getAll(Pageable pageable, TransactionDTO req) {
@@ -65,7 +67,9 @@ public class TransactionServiceImpl implements TransactionService {
         if (newTransaction.getTransactionType() == ETransactionType.SELL) {
             handleSell(portfolio, req);
         }
-        reCheckPortfolio(portfolio);
+        if (portfolio.getTransactions() != null) {
+            reCheckPortfolio(portfolio);
+        }
         return newTransaction;
     }
 

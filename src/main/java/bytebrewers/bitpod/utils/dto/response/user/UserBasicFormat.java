@@ -25,6 +25,7 @@ public class UserBasicFormat {
                 .username(user.getUsername())
                 .address(user.getAddress())
                 .birthDate(formatBirthDate(user.getBirthDate()))
+                .balance(user.getBalance())
                 .profilePicture(user.getProfilePicture())
                 .build();
     }
