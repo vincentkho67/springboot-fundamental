@@ -42,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 @ActiveProfiles("test")
 @Transactional
 @Slf4j
-class UserControllerTest {
+public class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

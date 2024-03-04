@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class StockServiceTest {
+public class StockServiceTest {
 
     @Test
     void getAll() {
