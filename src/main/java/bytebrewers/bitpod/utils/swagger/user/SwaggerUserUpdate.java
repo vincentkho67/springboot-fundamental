@@ -28,9 +28,7 @@ import java.lang.annotation.Target;
                                     "status": "OK",
                                     "message": "User Updated",
                                     "data": {
-                                      "email": "admin9@gmail.com",
-                                      "roles": [
-                                        "ROLE_MEMBER"
+                                      
                                       ]
                                     }
                                 }

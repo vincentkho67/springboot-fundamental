@@ -115,15 +115,23 @@ public class UserServiceImpl implements UserService{
     public UserBasicFormat updateUser(UserDTO userDTO, String token) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         try{
-            Map<?,?> result = upload(userDTO.getImage());
+            Map<?,?> result = (userDTO.getImage() != null) ? upload(userDTO.getImage()) : Collections.emptyMap();
 
             User user = getUserDetails(token);
-            user.setName(userDTO.getName());
-            user.setUsername(userDTO.getUsername());
-            user.setAddress(userDTO.getAddress());
-            Date dateOfBirth = dateFormat.parse(userDTO.getBirthDate());
-            user.setBirthDate(dateOfBirth);
-            user.setProfilePicture(result.get("url").toString());
+            user.setName((userDTO.getName() != null) ? userDTO.getName() : user.getName());
+            user.setUsername((userDTO.getUsername() != null) ? userDTO.getUsername() : user.getUsername());
+            user.setAddress((userDTO.getAddress() != null) ? userDTO.getAddress() : user.getAddress());
+
+            if(userDTO.getBirthDate() != null){
+                Date dateOfBirth = dateFormat.parse(userDTO.getBirthDate());
+                user.setBirthDate(dateOfBirth);
+            } 
+            if(userDTO.getBirthDate() == null){
+                user.setBirthDate(user.getBirthDate());
+            }
+            
+
+            user.setProfilePicture((userDTO.getImage() != null) ? result.get("url").toString() : user.getProfilePicture() != null ? user.getProfilePicture() : null);
             User updatedUser = userRepository.save(user);
 
             return UserBasicFormat.fromUser(updatedUser);

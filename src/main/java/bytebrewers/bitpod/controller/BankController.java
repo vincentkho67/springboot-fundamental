@@ -9,6 +9,7 @@ import bytebrewers.bitpod.utils.dto.Res;
 import bytebrewers.bitpod.utils.dto.request.bank.BankDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -58,7 +59,7 @@ public class BankController {
     )
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody BankDTO bankDTO) {
+    public ResponseEntity<?> create(@RequestBody @Valid BankDTO bankDTO) {
         Bank newBank = bankService.create(bankDTO);
         return Res.renderJson(newBank, Messages.BANK_CREATED, HttpStatus.CREATED);
     }
