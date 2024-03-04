@@ -10,6 +10,7 @@ import bytebrewers.bitpod.utils.swagger.auth.SwaggerAuth;
 import bytebrewers.bitpod.utils.swagger.auth.SwaggerAuthAdmin;
 import bytebrewers.bitpod.utils.swagger.auth.SwaggerAuthLogin;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
@@ -28,7 +29,7 @@ public class AuthController {
      private final AuthService authService;
      @SwaggerAuth
     @PostMapping("/register")
-    public ResponseEntity<?> register (@RequestBody RegisterDTO registerDTO){
+    public ResponseEntity<?> register (@RequestBody @Valid RegisterDTO registerDTO){
         UserResponseDTO userResponse = authService.register(registerDTO);
         return Res.renderJson(userResponse, "register success", HttpStatus.CREATED);
     }
@@ -36,14 +37,14 @@ public class AuthController {
 
    @SwaggerAuthAdmin
     @PostMapping("/register/admin")
-    public ResponseEntity<?> registerAdmin (@RequestBody RegisterDTO registerDTO){
+    public ResponseEntity<?> registerAdmin (@RequestBody @Valid RegisterDTO registerDTO){
         UserResponseDTO userResponse = authService.registerAdmin(registerDTO);
         return Res.renderJson(userResponse, "register success", HttpStatus.CREATED);
     }
 
     @SwaggerAuthLogin
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequest authRequest){
+    public ResponseEntity<?> login(@RequestBody @Valid AuthRequest authRequest){
         String token = authService.login(authRequest.getEmail(), authRequest.getPassword());
         return Res.renderJson(token, "login success", HttpStatus.ACCEPTED);
     }
