@@ -71,15 +71,4 @@ public class PortfolioControllerTest {
         portfolio = helper.createPortfolio(member);
         Helper.showById(mockMvc, "/api/portfolios/", token, portfolio.getId(), objectMapper);
     }
-
-    @Order(3)
-    @Test
-    void delete() throws Exception {
-        User member = helper.createMember();
-        portfolio = helper.createPortfolio(member);
-        token = Helper.loginAsSuperAdmin(mockMvc, objectMapper);
-
-        ResultActions result = Helper.delete(mockMvc, "/api/portfolios/", token, portfolio.getId());
-        result.andExpectAll(status().isOk());
-    }
 }

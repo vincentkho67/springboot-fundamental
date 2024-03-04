@@ -4,8 +4,7 @@ import bytebrewers.bitpod.utils.constant.ApiUrl;
 import bytebrewers.bitpod.utils.constant.Messages;
 import bytebrewers.bitpod.utils.dto.PageResponseWrapper;
 import bytebrewers.bitpod.utils.dto.response.user.UserBasicFormat;
-import bytebrewers.bitpod.utils.swagger.user.SwaggerUserGetUserById;
-import bytebrewers.bitpod.utils.swagger.user.SwaggerUserUpdate;
+import bytebrewers.bitpod.utils.swagger.user.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -49,10 +48,7 @@ public class UserController{
         return Res.renderJson(userService.updateUser(userDTO, token), Messages.USER_UPDATED, HttpStatus.OK);
     }    
 
-    @Operation(
-        description = "Get all user",
-        summary = "Get all user (ADMIN ONLY)"
-    )
+    @SwaggerUserIndex
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<?> index(
@@ -64,10 +60,7 @@ public class UserController{
         return Res.renderJson(responseWrapper, Messages.USER_FOUND, HttpStatus.OK);
     }
 
-    @Operation(
-        description = "Top up backup",
-        summary = "Top up backup (ADMIN ONLY)"
-    )
+    @SwaggerUserTopUp
     @PostMapping("/topup")
     public ResponseEntity<?> topup(@RequestBody TopUpDTO topUpDTO,
                                    @RequestHeader(name = "Authorization") String token
@@ -82,13 +75,11 @@ public class UserController{
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable String id) {
         User user = userService.findUserById(id);
-        return Res.renderJson(user, "User found", HttpStatus.OK);
+        UserBasicFormat renderUser = UserBasicFormat.fromUser(user);
+        return Res.renderJson(renderUser, "User found", HttpStatus.OK);
     }
 
-    @Operation(
-        description = "Top up midtrans",
-        summary = "Top up mditrans"
-    )
+    @SwaggerUserMidTrans
     @PostMapping("/topup/midtrans")
     public ResponseEntity<?> topUpViaMidtrans(@RequestBody TopUpSnapDTO topUpSnapDTO,
                                               @RequestHeader(name = "Authorization") String token

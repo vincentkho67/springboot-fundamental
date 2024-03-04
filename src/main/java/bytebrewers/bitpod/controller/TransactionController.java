@@ -7,6 +7,9 @@ import bytebrewers.bitpod.utils.constant.Messages;
 import bytebrewers.bitpod.utils.dto.PageResponseWrapper;
 import bytebrewers.bitpod.utils.dto.Res;
 import bytebrewers.bitpod.utils.dto.request.transaction.TransactionDTO;
+import bytebrewers.bitpod.utils.swagger.stock.SwaggerStockIndex;
+import bytebrewers.bitpod.utils.swagger.stock.SwaggerStockShow;
+import bytebrewers.bitpod.utils.swagger.transaction.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -29,10 +32,7 @@ import org.springframework.web.bind.annotation.*;
 public class TransactionController {
     private final TransactionService transactionService;
 
-    @Operation(
-        description = "Get all transaction",
-        summary = "Get all transaction (ADMIN ONLY)"
-    )
+    @SwaggerTransactionIndex
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @GetMapping
     public ResponseEntity<?> index(
@@ -44,10 +44,7 @@ public class TransactionController {
         return Res.renderJson(responseWrapper, Messages.TRANSACTION_FOUND, HttpStatus.OK);
     }
 
-    @Operation(
-        description = "Get transaction by id",
-        summary = "Get transaction by id"
-    )
+    @SwaggerTransactionShow
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<?> show(@PathVariable String id) {
@@ -55,10 +52,7 @@ public class TransactionController {
         return Res.renderJson(transaction, Messages.TRANSACTION_FOUND, HttpStatus.OK);
     }
 
-    @Operation(
-        description = "Get transaction history",
-        summary = "Get transaction history"
-    )
+    @SwaggerTransactionHistory
     @GetMapping("/history")
     public ResponseEntity<?> transactionHistory(@PageableDefault(page = 0, size = 2, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
                                                 @RequestHeader(name = "Authorization") String token) {
@@ -67,19 +61,13 @@ public class TransactionController {
         return Res.renderJson(responseWrapper, Messages.TRANSACTION_FOUND, HttpStatus.OK);
     }
 
-    @Operation(
-        description = "Get transaction history by id",
-        summary = "Get transaction history by id"
-    )
+    @SwaggerTransactionHistoryById
     @GetMapping("/history/{id}")
     public ResponseEntity<?> transactionHistoryById(@PathVariable String id, @RequestHeader(name = "Authorization") String token) {
         return Res.renderJson(transactionService.getTransactionByCurrentUser(token, id), Messages.TRANSACTION_FOUND, HttpStatus.OK);
     }
 
-    @Operation(
-        description = "Create transaction",
-        summary = "Create transaction"
-    )
+    @SwaggerTransactionCreate
     @PostMapping("/buy-or-sell")
     public ResponseEntity<?> create(@RequestBody TransactionDTO transactionDTO,
                                     @RequestHeader(name = "Authorization") String token) {
@@ -87,10 +75,7 @@ public class TransactionController {
         return Res.renderJson(newTransaction, Messages.TRANSACTION_CREATED, HttpStatus.CREATED);
     }
 
-    @Operation(
-        description = "Delete transaction",
-        summary = "Delete transaction (ADMIN ONLY)"
-    )
+    @SwaggerTransactionDelete
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
    @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable String id) {

@@ -18,6 +18,7 @@ import bytebrewers.bitpod.utils.dto.response.user.TopUpMidtransresponseDTO;
 import bytebrewers.bitpod.utils.dto.response.user.UserBasicFormat;
 import bytebrewers.bitpod.utils.specification.GeneralSpecification;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -64,10 +65,22 @@ public class UserServiceImpl implements UserService{
 
     private final ExecutorService executorService;
 
+    @Value("${app.bit-pods.midtrans-client-key}")
+    private String midtransClientKey;
+
+    @Value("${app.bit-pods.midtrans-server-key}")
+    private String midtransServerKey;
+
+    @Value("${app.bit-pods.midtrans-url}")
+    private String midtransUrl;
+
+    @Value("${app.bit-pods.midtrans-status-url}")
+    private String midtransStatusUrl;
+
     @Override
     public TopUpMidtransresponseDTO topUpViaMidtrans(TopUpSnapDTO topUpSnapDTO, String userToken) throws MidtransError {
-        Midtrans.clientKey = "SB-Mid-client-mmalMqC0Sqqv81WL";
-        Midtrans.serverKey = "SB-Mid-server-v6MMOtdWj5g1EG3lAQihiYAV";
+        Midtrans.clientKey = midtransClientKey;
+        Midtrans.serverKey = midtransServerKey;
         // Get ClientKey from Midtrans Configuration class
         String clientKey = Midtrans.getClientKey();
 
@@ -88,7 +101,7 @@ public class UserServiceImpl implements UserService{
         topUpMidtransresponseDTO.setRequestBody(requestBody);
         topUpMidtransresponseDTO.setClientKey(clientKey);
         String token = SnapApi.createTransactionToken(requestBody);
-        topUpMidtransresponseDTO.setToken("https://app.sandbox.midtrans.com/snap/v3/redirection/"+token);
+        topUpMidtransresponseDTO.setToken(midtransUrl + token);
 
         executorService.submit(() -> checkStatus(token, topUpSnapDTO.getGross_amount(), userToken));
         return topUpMidtransresponseDTO;
@@ -165,7 +178,7 @@ public class UserServiceImpl implements UserService{
             return topUpDTO;
 
         } catch(Exception e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found", e.getCause());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e.getCause());
         }
     }
 
@@ -185,7 +198,7 @@ public class UserServiceImpl implements UserService{
         for(int i = 1; i <= 20; i++){
             try{
                 ResponseEntity<JsonNode> res = restTemplate.getForEntity(
-                        "https://app.sandbox.midtrans.com/snap/v1/transactions/"+token+"/status",
+                        midtransUrl + token + "/status",
                         JsonNode.class
                 );
                 JsonNode response = res.getBody();

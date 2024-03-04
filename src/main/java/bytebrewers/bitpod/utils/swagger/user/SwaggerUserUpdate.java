@@ -24,14 +24,18 @@ import java.lang.annotation.Target;
                                         schema = @Schema(
                                                 type = "object",
                                                 example = """
-                                {
-                                    "status": "OK",
-                                    "message": "User Updated",
-                                    "data": {
-                                      
-                                      ]
-                                    }
-                                }
+                                                        {
+                                                            "status": "OK",
+                                                            "message": "User updated",
+                                                            "data": {
+                                                                "name": "Panji simatupang",
+                                                                "username": "superadmin@gmail.com",
+                                                                "address": "jalan rambutan",
+                                                                "birthDate": "1999-07-27",
+                                                                "profilePicture": "http://res.cloudinary.com/de0yidcs5/image/upload/v1709549585/vgiwgfog1d3g8eexry70.png",
+                                                                "balance": null
+                                                            }
+                                                        }
                                 """
                                         )
                                 )
@@ -49,7 +53,7 @@ import java.lang.annotation.Target;
                                 {
                                     
                                     "status": "Bad Request",
-                                    "message": "failed to register",
+                                    "message": "failed to update",
                                     "data": null
                                       
                                 }

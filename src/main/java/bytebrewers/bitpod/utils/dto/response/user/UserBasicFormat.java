@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 @NoArgsConstructor
 @Builder
 public class UserBasicFormat {
+    private String id;
     private String name;
     private String username;
     private String address;
@@ -21,6 +22,7 @@ public class UserBasicFormat {
 
     public static UserBasicFormat fromUser(User user) {
         return UserBasicFormat.builder()
+                .id(user.getId())
                 .name(user.getName())
                 .username(user.getUsername())
                 .address(user.getAddress())

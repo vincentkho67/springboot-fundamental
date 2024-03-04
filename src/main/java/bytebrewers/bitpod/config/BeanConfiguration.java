@@ -3,6 +3,7 @@ package bytebrewers.bitpod.config;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +18,15 @@ import com.cloudinary.utils.ObjectUtils;
 
 @Configuration
 public class BeanConfiguration {
+    @Value("${app.bit-pods.cloudinary-cloud-name}")
+    private String cloudName;
+
+    @Value("${app.bit-pods.cloudinary-api-key}")
+    private String cloudApiKey;
+
+    @Value("${app.bit-pods.cloudinary-api-secret}")
+    private String cloudApiSecret;
+
     @Bean
     public PasswordEncoder passwordEncode() {
         return new BCryptPasswordEncoder();
@@ -33,9 +43,9 @@ public class BeanConfiguration {
     @Bean
     public Cloudinary cloudinaryAccount(){
         return new Cloudinary(ObjectUtils.asMap(
-            "cloud_name","de0yidcs5",
-            "api_key","415953523312214",
-            "api_secret","Y5JMq_FNpPplA8Fmtn-zn3sGfnw"
+            "cloud_name",cloudName,
+            "api_key",cloudApiKey,
+            "api_secret",cloudApiSecret
         ));
     }
 

@@ -27,10 +27,10 @@ public class RegisterDTO {
     @NotBlank(message = "Name cannot be empty")
     private String name;
 
-    @NotBlank(message = "username cannot be empty")
+    @NotBlank(message = "Username cannot be empty")
     private String username;
 
-    @NotBlank(message = "Adderess cannot be empty")
+    @NotBlank(message = "Address cannot be empty")
     private String address;
 
     @JsonFormat(pattern = "yyyy-MM-dd")

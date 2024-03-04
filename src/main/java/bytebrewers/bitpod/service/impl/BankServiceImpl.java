@@ -49,7 +49,7 @@ public class BankServiceImpl implements BankService {
 
     @Override
     public void delete(Integer id) {
-//        Auditable.searchById(bankRepository.findById(id), "Bank not found");
+        Auditable.searchById(bankRepository.findById(id), "Bank not found");
         bankRepository.deleteById(id);
     }
 }

@@ -44,9 +44,9 @@ import java.lang.annotation.Target;
                                                 type = "object",
                                                 example = """
                                 {
-                                   "status": "Bad Request",
-                                   "message": "login failed",
-                                   "data" : "null"
+                                    "status": "Bad Request",
+                                    "message": "Unauthorized",
+                                    "data": null
                                 }
                                 """
                                         )

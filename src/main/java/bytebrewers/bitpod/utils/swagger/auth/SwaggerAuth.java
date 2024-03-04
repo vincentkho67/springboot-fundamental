@@ -51,7 +51,7 @@ import java.lang.annotation.Target;
                                 {
                                     
                                     "status": "Bad Request",
-                                    "message": "failed to register",
+                                    "message": "Please provide a valid email address",
                                     "data": null
                                       
                                 }
