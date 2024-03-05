@@ -83,7 +83,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         List<StockDTO> stocks = stockService.fetch();
         BigDecimal totalGain = BigDecimal.ZERO;
         for (Transaction t : transactions) {
-            if (t.getTransactionType() == ETransactionType.BUY) {
+            if (t.getTransactionType() == ETransactionType.BUY && t.getLot() > 0) {
                 String stockName = t.getStock().getName();
                 Optional<StockDTO> matchingStock = stocks.stream()
                         .filter(s -> s.getName().equals(stockName))
