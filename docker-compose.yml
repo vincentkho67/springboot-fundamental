@@ -9,7 +9,7 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=bitpods_db
-      - MYSQL_DATABASE=bid_pods_db_test
+      - MYSQL_TEST_DATABASE=bid_pods_db_test
   mockserver:
     depends_on:
       - mysql
@@ -29,7 +29,7 @@ services:
       - mysql
       - mockserver
     container_name: bitpods
-    image: vincentkho67/bit-pod
+    image: vincentkho67/bitpods
     ports:
       - 8080:8080
     environment:
@@ -43,13 +43,13 @@ services:
       - JWT_EXPIRATION=36000
       - APP_NAME=bitpods
       - MOCK_STOCK_URL=http://mockserver:8081/api/stocks
-      - MIDTRANS_CLIENT_KEY=
-      - MIDTRANS_SERVER_KEY=
-      - MIDTRANS_URL=
-      - MIDTRANS_STATUS_URL=
-      - CLOUD_NAME=
-      - CLOUD_API_KEY=
-      - CLOUD_API_SECRET=
+      - MIDTRANS_CLIENT_KEY=SB-Mid-client-mmalMqC0Sqqv81WL
+      - MIDTRANS_SERVER_KEY=SB-Mid-server-v6MMOtdWj5g1EG3lAQihiYAV
+      - MIDTRANS_URL=https://app.sandbox.midtrans.com/snap/v3/redirection/
+      - MIDTRANS_STATUS_URL=https://app.sandbox.midtrans.com/snap/v1/transactions/
+      - CLOUD_NAME=de0yidcs5
+      - CLOUD_API_KEY=415953523312214
+      - CLOUD_API_SECRET=Y5JMq_FNpPplA8Fmtn-zn3sGfnw
     networks:
       - bit_pods_network
 networks:
